@@ -9,6 +9,8 @@ import com.BackEnd.BidPro.Repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,16 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     @Transactional
-    public ResponseEntity<Map> uploadImage(Long id, ImageModel imageModel) {
+    public ResponseEntity<Map> uploadImage( ImageModel imageModel) {
         try {
 
             if (imageModel.getFile().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            User user = userRepository.findById(id).get();
+            String email= SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(()->new RuntimeException("Please provide an valid userName!"));
+
             Image image = new Image();
             image.setUrl(cloudinaryService.uploadFile(imageModel.getFile(), "folder_1"));
             if (image.getUrl() == null) {

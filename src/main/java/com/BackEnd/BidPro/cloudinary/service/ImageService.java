@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface ImageService {
 
-    ResponseEntity<?> uploadImage(Long id, ImageModel imageModel);
+    ResponseEntity<?> uploadImage(ImageModel imageModel);
 }

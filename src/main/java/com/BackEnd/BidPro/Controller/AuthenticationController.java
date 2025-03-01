@@ -5,11 +5,14 @@ import com.BackEnd.BidPro.Dto.Response.AuthenticationResponse;
 import com.BackEnd.BidPro.Service.AuthenticationService;
 import com.BackEnd.BidPro.Dto.Request.RegisterRequest;
 import lombok.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.AuthenticationException;
+
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -37,13 +40,12 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(
             @RequestBody AuthenticationRequest request) {
-try{
+   try{
         return ResponseEntity.ok(service.authenticate(request));
 
-    }
-catch (Exception e) {
-
-return ResponseEntity.badRequest().body("Email or password is incorrect");
-}
+        }
+     catch (AuthenticationException e) {
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+                          }
     }
 }
