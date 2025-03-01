@@ -1,8 +1,11 @@
 package com.BackEnd.BidPro.Controller;
 
+import com.BackEnd.BidPro.Dto.Request.ProductRequest;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("/products/{prouductId}")
-    public Product findById(@PathVariable int prouductId) {
+    public Product findById(@PathVariable Long prouductId) {
         Product product = productService.findById(prouductId);
         if (product == null) {
             throw new RuntimeException("Employee id not found - " + prouductId);
@@ -35,17 +38,23 @@ public class ProductController {
     @PostMapping("/products")
     public Product addProduct(@RequestBody Product theProduct) {
 
-        theProduct.setId(0);
+        theProduct.setId(0L);
 
         Product dbProduct = productService.save(theProduct);
 
         return dbProduct;
     }
 
+    // add Product with photo
+    @PostMapping("/addProduct")
+    public ResponseEntity<?> addProduct(ProductRequest productRequest) {
+        return new ResponseEntity<>(productService.addProduct(productRequest), HttpStatus.OK);
+    }
+
     @PostMapping("/product")
     public Product addProductWithNoBuyNow(@RequestBody Product theProduct) {
 
-        theProduct.setId(0);
+        theProduct.setId(0L);
 
         theProduct.setBuyNow(0);
 
@@ -63,7 +72,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{prouductId}")
-    public String deleteProduct(@PathVariable int prouductId) {
+    public String deleteProduct(@PathVariable Long prouductId) {
 
         Product tempProduct = productService.findById(prouductId);
 

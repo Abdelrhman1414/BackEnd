@@ -1,15 +1,19 @@
 package com.BackEnd.BidPro.Service;
 
+import com.BackEnd.BidPro.Dto.Request.ProductRequest;
 import com.BackEnd.BidPro.Model.Product;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface ProductService {
     List<Product> findAll();
 
-    Product findById(int theId);
+    Product findById(Long theId);
 
     Product save(Product product);
 
-    void deleteById(int theId);
+    ResponseEntity<?> addProduct(ProductRequest productRequest);
+
+    void deleteById(Long theId);
 }

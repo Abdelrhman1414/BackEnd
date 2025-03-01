@@ -1,6 +1,7 @@
 package com.BackEnd.BidPro.Model;
 
 import com.BackEnd.BidPro.Domain.Role;
+import com.BackEnd.BidPro.cloudinary.model.Image;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY )
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false,unique = true)
     private String userName;
@@ -48,6 +49,13 @@ public class User implements UserDetails {
     private String city;
     @Column(nullable = false)
     private String address;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="image_id")
+    private Image image;
+
+    @OneToMany(mappedBy = "seller")
+    private List<Product> sellerProducts;
 
 //
 //    @Column(nullable = false)

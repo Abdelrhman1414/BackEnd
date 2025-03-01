@@ -1,9 +1,11 @@
 package com.BackEnd.BidPro.Model;
 
+import com.BackEnd.BidPro.cloudinary.model.Image;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -12,7 +14,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Column(name = "description")
     private String description;
@@ -41,8 +43,9 @@ public class Product {
     @Column(name = "quantity")
     private int quantity;
 
-    @Column(name = "seller_id")
-    private int sellerId;
+    @ManyToOne
+    @JoinColumn(name="seller_id")
+    private User seller;
 
 
 
@@ -60,4 +63,7 @@ public class Product {
 
     @Column(name = "processing")
     private Boolean processing;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Image> images;
 }

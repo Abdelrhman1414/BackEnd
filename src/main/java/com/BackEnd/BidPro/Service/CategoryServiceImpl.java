@@ -25,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category findById(int theId) {
+    public Category findById(Long theId) {
         Optional<Category> result = categoryRepo.findById(theId);
 
         Category category = null;
@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteById(int theId) {
+    public void deleteById(Long theId) {
         categoryRepo.deleteById(theId);
     }
 }

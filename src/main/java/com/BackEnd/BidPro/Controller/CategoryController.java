@@ -24,7 +24,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{categoryId}")
-    public Category findById(@PathVariable int categoryId) {
+    public Category findById(@PathVariable Long categoryId) {
         Category category = categoryService.findById(categoryId);
         if (category == null) {
             throw new RuntimeException("Employee id not found - " + categoryId);
@@ -33,7 +33,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categoriess/{categoryId}")
-    public Category findCategoryAndProductsByCategoryId(@PathVariable int categoryId) {
+    public Category findCategoryAndProductsByCategoryId(@PathVariable Long categoryId) {
         Category category = categoryService.findById(categoryId);
 
         if (category == null) {
@@ -47,7 +47,7 @@ public class CategoryController {
     @PostMapping("/categories")
     public Category addCategory(@RequestBody Category theCategory) {
 
-        theCategory.setId(0);
+        theCategory.setId(0L);
 
         Category dbCategory = categoryService.save(theCategory);
 
@@ -64,7 +64,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{categoryId}")
-    public String deleteCategory(@PathVariable int categoryId) {
+    public String deleteCategory(@PathVariable Long categoryId) {
 
         Category tempCategory = categoryService.findById(categoryId);
 
