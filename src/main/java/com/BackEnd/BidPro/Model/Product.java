@@ -4,6 +4,7 @@ import com.BackEnd.BidPro.cloudinary.model.Image;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,4 +67,23 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Image> images;
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
+    @JoinTable(
+            name = "insurance",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    public List<User> users;
+
+
+    public void addUser(User theUser) {
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        users.add(theUser);
+
+    }
 }

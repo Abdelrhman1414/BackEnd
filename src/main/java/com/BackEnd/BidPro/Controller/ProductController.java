@@ -2,10 +2,14 @@ package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
 import com.BackEnd.BidPro.Model.Product;
+import com.BackEnd.BidPro.Model.User;
+import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Service.ProductService;
+import com.BackEnd.BidPro.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,10 +19,14 @@ import java.util.List;
 public class ProductController {
 
     private ProductService productService;
+    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    public ProductController(ProductService theProductService) {
+    public ProductController(ProductService theProductService, UserService theUserService, UserRepository theUserRepository) {
         productService = theProductService;
+        userService = theUserService;
+        userRepository =theUserRepository;
     }
 
     @GetMapping("/products")
@@ -85,6 +93,28 @@ public class ProductController {
         productService.deleteById(prouductId);
 
         return "Deleted prouduct id - " + prouductId;
+    }
+
+    @GetMapping("/insurance/{prouductId}")
+    public String insuranceAmountHandling(@PathVariable Long prouductId) {
+        Product product = findById(prouductId);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+
+
+        long productAmount = (long) product.getInsuranceAmount();
+
+        long userBalance = user.getBalance();
+
+        if (userBalance > productAmount) {
+            user.setBalance(userBalance - productAmount);
+            product.addUser(user);
+            productService.save(product);
+        }
+
+        return ("Done!");
     }
 
 }

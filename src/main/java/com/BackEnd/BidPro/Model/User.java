@@ -65,7 +65,11 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
+                    CascadeType.DETACH, CascadeType.REFRESH},
+            mappedBy = "users")
+    private List<Product> products;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
