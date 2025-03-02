@@ -7,5 +7,4 @@ public interface UserService {
     UserResponse details();
 
 
-
 }

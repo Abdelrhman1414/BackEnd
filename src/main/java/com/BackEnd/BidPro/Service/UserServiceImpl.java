@@ -16,16 +16,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse details() {
-        String userEmail= SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(()->new RuntimeException("Please provide an valid userName!"));
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
         UserResponse userResponse = new UserResponse();
         userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
-       if (user.getImage() == null){
+        if (user.getImage() == null) {
             userResponse.setImage_url(null);
-       }else {
-           userResponse.setImage_url(user.getImage().getUrl());
+        } else {
+            userResponse.setImage_url(user.getImage().getUrl());
         }
         userResponse.setNationalid(user.getNationalId());
         userResponse.setPhonenumber(user.getPhoneNumber());
@@ -35,7 +35,6 @@ public class UserServiceImpl implements UserService {
 
         return userResponse;
     }
-
 
 
 }

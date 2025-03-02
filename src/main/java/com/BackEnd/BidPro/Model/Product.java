@@ -35,6 +35,9 @@ public class Product {
     @Column(name = "buy_now")
     private float buyNow;
 
+    @Column(name = "start_price")
+    private float startPrice;
+
     @Column(name = "title")
     private String title;
 

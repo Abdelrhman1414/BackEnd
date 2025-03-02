@@ -22,33 +22,31 @@ public class AuthenticationService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private  final JwtService jwtService;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
     public AuthenticationResponse register(RegisterRequest request) {
 
-            var user = User.builder()
-                    .userName(request.getUsername())
-                    .email(request.getEmail())
-                    .nationalId(request.getNationalid())
-                    .phoneNumber(request.getPhonenumber())
-                    .state_region(request.getState_region())
-                    .city(request.getCity())
-                    .address(request.getAddress())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .role(Role.USER).build();
+        var user = User.builder()
+                .userName(request.getUsername())
+                .email(request.getEmail())
+                .nationalId(request.getNationalid())
+                .phoneNumber(request.getPhonenumber())
+                .state_region(request.getState_region())
+                .city(request.getCity())
+                .address(request.getAddress())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER).build();
 
-                if(repository.findByEmail(request.getEmail()).isPresent()){
-                    throw new UsernameNotFoundException("Email already in use");
-                }
-            repository.save(user);
+        if (repository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UsernameNotFoundException("Email already in use");
+        }
+        repository.save(user);
 
-            var jwtToken= jwtService.generateToken(user);
-            return AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .build();
-
-
-
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
 
 
     }
@@ -57,7 +55,7 @@ public class AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         var user = repository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
-        var jwtToken= jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

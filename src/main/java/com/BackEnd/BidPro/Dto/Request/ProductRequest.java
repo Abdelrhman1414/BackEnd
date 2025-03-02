@@ -24,4 +24,5 @@ public class ProductRequest {
     private String title;
     private String insuranceAmount;
     private String quantity;
+    private String startPrice;
 }

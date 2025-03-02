@@ -34,7 +34,6 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
 
 
-
     @Override
     public List<Product> findAll() {
         return productRepo.findAll();
@@ -59,7 +58,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     // adding product with photos .
     @Override
     @Transactional
@@ -76,10 +74,11 @@ public class ProductServiceImpl implements ProductService {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             product.setStartDate(formatter.parse(productRequest.getStartDate()));
             product.setEndDate(formatter.parse(productRequest.getEndDate()));
+            product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
 
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(()->new RuntimeException("Please provide an valid Email!"));
+                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
             product.setSeller(user);
 
             List<Image> images = new ArrayList<>();
@@ -88,14 +87,13 @@ public class ProductServiceImpl implements ProductService {
                 img.setUrl(cloudinaryService.uploadFile(image, "product"));
                 images.add(img);
             }
-            for(Image image : images){
+            for (Image image : images) {
                 image.setProduct(product);
             }
             product.setImages(images);
             productRepo.save(product);
             return ResponseEntity.ok().body("Added product successfully!");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

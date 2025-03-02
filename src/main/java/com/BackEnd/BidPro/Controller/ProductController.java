@@ -26,7 +26,7 @@ public class ProductController {
     public ProductController(ProductService theProductService, UserService theUserService, UserRepository theUserRepository) {
         productService = theProductService;
         userService = theUserService;
-        userRepository =theUserRepository;
+        userRepository = theUserRepository;
     }
 
     @GetMapping("/products")
@@ -112,9 +112,11 @@ public class ProductController {
             user.setBalance(userBalance - productAmount);
             product.addUser(user);
             productService.save(product);
-        }
 
-        return ("Done!");
+            return ("Done!");
+        } else
+
+            return ("your balance is not enough");
     }
 
 }
