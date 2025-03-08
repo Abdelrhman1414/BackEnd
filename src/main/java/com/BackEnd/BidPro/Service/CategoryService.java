@@ -1,17 +1,26 @@
 package com.BackEnd.BidPro.Service;
 
+import com.BackEnd.BidPro.Dto.Request.CategoryRequest;
+import com.BackEnd.BidPro.Dto.Response.CategoryResponse;
 import com.BackEnd.BidPro.Model.Category;
-import com.BackEnd.BidPro.Model.Product;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    List<Category> findAll();
+    List<CategoryResponse> findAll();
 
-    Category findById(Long theId);
+    CategoryResponse findById(Long theId);
+
+    CategoryResponse findCategoryAndProductsByCategoryId(Long theId);
+
+    ResponseEntity<?> addCategory(CategoryRequest categoryRequest);
+
 
     Category save(Category category);
 
     void deleteById(Long theId);
+
+
 }

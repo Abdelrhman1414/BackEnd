@@ -1,6 +1,7 @@
 package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
@@ -31,17 +32,27 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<Product> findAll() {
-        return productService.findAll();
+    public ResponseEntity<?> findAll() {
+        try {
+            List<ProductResponse> productResponse = productService.findAll();
+            return new ResponseEntity<>(productResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping("/products/{prouductId}")
-    public Product findById(@PathVariable Long prouductId) {
-        Product product = productService.findById(prouductId);
-        if (product == null) {
-            throw new RuntimeException("Employee id not found - " + prouductId);
+    public ResponseEntity<?> findById(@PathVariable long prouductId) {
+        try {
+            ProductResponse productResponse = productService.findByIdResponse(prouductId);
+
+            if (productResponse == null) {
+                throw new RuntimeException("Product id not found - " + prouductId);
+            }
+            return new ResponseEntity<>(productResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return product;
     }
 
     @PostMapping("/products")
@@ -61,15 +72,9 @@ public class ProductController {
     }
 
     @PostMapping("/product")
-    public Product addProductWithNoBuyNow(@RequestBody Product theProduct) {
-
-        theProduct.setId(0L);
-
-        theProduct.setBuyNow(0);
-
-        Product dbProduct = productService.save(theProduct);
-
-        return dbProduct;
+    public ResponseEntity<?> addProductWithNoBuyNow(ProductRequest productRequest) {
+        productRequest.setBuyNow(String.valueOf(0));
+        return new ResponseEntity<>(productService.addProduct(productRequest), HttpStatus.OK);
     }
 
     @PutMapping("/products")
@@ -80,8 +85,9 @@ public class ProductController {
         return dbProduct;
     }
 
+
     @DeleteMapping("/products/{prouductId}")
-    public String deleteProduct(@PathVariable Long prouductId) {
+    public ResponseEntity<?> deleteProduct(@PathVariable long prouductId) {
 
         Product tempProduct = productService.findById(prouductId);
 
@@ -93,43 +99,12 @@ public class ProductController {
 
         productService.deleteById(prouductId);
 
-        return "Deleted prouduct id - " + prouductId;
+        return new ResponseEntity<>("Product has been deleted successfully", HttpStatus.OK);
     }
 
     @GetMapping("/insurance/{prouductId}")
-    public String insuranceAmountHandling(@PathVariable Long prouductId) {
-        Product product = findById(prouductId);
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
-
-        float productAmount = product.getInsuranceAmount();
-
-        Long userBalance = user.getBalance();
-        Category category = product.getCategory();
-        List<Category> interests = user.getCategoryList();
-        boolean alreadyHave = false;
-        for( Category interest : interests ) {
-            if(interest.getId()== category.getId()){
-                alreadyHave=true;
-            }
-        }
-        if(!alreadyHave){
-            interests.add(category);
-            user.setCategoryList(interests);
-            userRepository.save(user);
-        }
-
-        if (userBalance > productAmount) {
-            user.setBalance((long) (userBalance - productAmount));
-            product.addUser(user);
-            productService.save(product);
-
-            return ("Done!");
-        } else
-
-            return ("your balance is not enough");
+    public ResponseEntity<?> insuranceAmountHandling(@PathVariable long prouductId) {
+        return new ResponseEntity<>(productService.insuranceAmountHandling(prouductId), HttpStatus.OK);
     }
 
 }

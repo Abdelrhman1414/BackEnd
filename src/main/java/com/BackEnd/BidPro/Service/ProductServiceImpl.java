@@ -1,6 +1,7 @@
 package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
@@ -38,8 +39,70 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<Product> findAll() {
-        return productRepo.findAll();
+    public List<ProductResponse> findAll() {
+
+        List<Product> products = productRepo.findAll();
+        List<ProductResponse> productResponses1 = new ArrayList<>();
+
+        for (Product product : products) {
+            ProductResponse productResponse = new ProductResponse();
+            productResponse.setDescription(product.getDescription());
+            productResponse.setTitle(product.getTitle());
+            productResponse.setQuantity(String.valueOf(product.getQuantity()));
+            productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+            productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+            productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            productResponse.setStartDate(formatter.format(product.getStartDate()));
+            productResponse.setEndDate(formatter.format(product.getEndDate()));
+            productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+
+            productResponse.setCategoryName(product.getCategory().getName());
+
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+            productResponse.setSellerName(user.getUsername());
+
+            productResponse.setUrl(product.getImages().get(0).getUrl());
+            productResponses1.add(productResponse);
+        }
+        return productResponses1;
+    }
+
+    @Override
+    public ProductResponse findByIdResponse(long theId) {
+        Optional<Product> result = productRepo.findById(theId);
+
+        ProductResponse productResponse = new ProductResponse();
+
+        Product product = null;
+        if (result.isPresent()) {
+            product = result.get();
+        } else {
+            throw new RuntimeException("Did not find product id - " + theId);
+        }
+        productResponse.setDescription(product.getDescription());
+        productResponse.setTitle(product.getTitle());
+        productResponse.setQuantity(String.valueOf(product.getQuantity()));
+        productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+        productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+        productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        productResponse.setStartDate(formatter.format(product.getStartDate()));
+        productResponse.setEndDate(formatter.format(product.getEndDate()));
+        productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+
+        productResponse.setCategoryName(product.getCategory().getName());
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+        productResponse.setSellerName(user.getName());
+
+        productResponse.setUrl(product.getImages().get(0).getUrl());
+
+        return productResponse;
     }
 
     @Override
@@ -105,8 +168,46 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+
     @Override
     public void deleteById(Long theId) {
         productRepo.deleteById(theId);
+    }
+
+    @Override
+    public ResponseEntity <?> insuranceAmountHandling(long theId) {
+        Product product = findById(theId);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+
+
+        float productAmount = product.getInsuranceAmount();
+
+        Long userBalance = user.getBalance();
+        Category category = product.getCategory();
+        List<Category> interests = user.getCategoryList();
+        boolean alreadyHave = false;
+        for( Category interest : interests ) {
+            if(interest.getId()== category.getId()){
+                alreadyHave=true;
+            }
+        }
+        if(!alreadyHave){
+            interests.add(category);
+            user.setCategoryList(interests);
+            userRepository.save(user);
+        }
+
+        if (userBalance > productAmount) {
+            user.setBalance((long) (userBalance - productAmount));
+            product.addUser(user);
+            save(product);
+
+            return ResponseEntity.ok().body("Added insurance table successfully!");
+        } else
+
+            return ResponseEntity.ok().body("Your balance is not enough!");
     }
 }

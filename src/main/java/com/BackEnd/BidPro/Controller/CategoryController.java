@@ -1,8 +1,14 @@
 package com.BackEnd.BidPro.Controller;
 
+import com.BackEnd.BidPro.Dto.Request.CategoryRequest;
+import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Dto.Response.CategoryResponse;
+import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,30 +24,52 @@ public class CategoryController {
         categoryService = theCategoryService;
     }
 
+
+
     @GetMapping("/categories")
-    public List<Category> getAllCategories() {
-        return categoryService.findAll();
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            List<CategoryResponse> categories = categoryService.findAll();
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
+
+
+
+        //    throw new RuntimeException("Employee id not found - " + categoryId);
+
+
+
     @GetMapping("/categories/{categoryId}")
-    public Category findById(@PathVariable Long categoryId) {
-        Category category = categoryService.findById(categoryId);
-        if (category == null) {
-            throw new RuntimeException("Employee id not found - " + categoryId);
+    public ResponseEntity<?> findById(@PathVariable long categoryId) {
+        try {
+            CategoryResponse categoryResponse = categoryService.findById(categoryId);
+
+            if (categoryResponse == null) {
+                throw new RuntimeException("Category id not found - " + categoryId);
+            }
+            return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        return category;
     }
 
     @GetMapping("/categoriess/{categoryId}")
-    public Category findCategoryAndProductsByCategoryId(@PathVariable Long categoryId) {
-        Category category = categoryService.findById(categoryId);
+    public ResponseEntity<?> findCategoryAndProductsByCategoryId(@PathVariable long categoryId) {
+       try{
+        CategoryResponse categoryResponse = categoryService.findCategoryAndProductsByCategoryId(categoryId);
 
-        if (category == null) {
-            throw new RuntimeException("Employee id not found - " + categoryId);
+        if (categoryResponse == null) {
+            throw new RuntimeException("Category id not found - " + categoryId);
         }
-        System.out.println(category);
-//        System.out.println(category.getProducts());
-        return category;
+        System.out.println(categoryResponse);
+      return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/categories")
@@ -54,6 +82,11 @@ public class CategoryController {
         return dbCategory;
     }
 
+    @PostMapping("/addCategory")
+    public ResponseEntity<?> addCategory(CategoryRequest categoryRequest) {
+        return new ResponseEntity<>(categoryService.addCategory(categoryRequest), HttpStatus.OK);
+    }
+
 
     @PutMapping("/categories")
     public Category updateCategory(@RequestBody Category theCategory) {
@@ -64,9 +97,9 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{categoryId}")
-    public String deleteCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
 
-        Category tempCategory = categoryService.findById(categoryId);
+        CategoryResponse tempCategory = categoryService.findById(categoryId);
 
         // throw exception if null
 
@@ -76,7 +109,7 @@ public class CategoryController {
 
         categoryService.deleteById(categoryId);
 
-        return "Deleted Category id - " + categoryId;
+        return new ResponseEntity<>("Category has been deleted successfully", HttpStatus.OK);
     }
 
 }
