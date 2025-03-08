@@ -9,4 +9,6 @@ import java.util.Map;
 public interface ImageService {
 
     ResponseEntity<?> uploadImage(ImageModel imageModel);
+
+
 }

@@ -19,8 +19,16 @@ public class Category {
     private String name;
 
     @OneToMany(fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.DETACH})
+            cascade = {CascadeType.REMOVE})
     @JoinColumn(name = "category_id" ,referencedColumnName = "id")
     private List<Product> products;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name="user_interests",
+            joinColumns = @JoinColumn(name="category_id"),
+            inverseJoinColumns = @JoinColumn(name="user_id")
+    )
+    private List<User> users;
 }
+

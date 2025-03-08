@@ -1,6 +1,7 @@
 package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
 import com.BackEnd.BidPro.Repo.UserRepository;
@@ -103,13 +104,25 @@ public class ProductController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
 
+        float productAmount = product.getInsuranceAmount();
 
-        long productAmount = (long) product.getInsuranceAmount();
-
-        long userBalance = user.getBalance();
+        Long userBalance = user.getBalance();
+        Category category = product.getCategory();
+        List<Category> interests = user.getCategoryList();
+        boolean alreadyHave = false;
+        for( Category interest : interests ) {
+            if(interest.getId()== category.getId()){
+                alreadyHave=true;
+            }
+        }
+        if(!alreadyHave){
+            interests.add(category);
+            user.setCategoryList(interests);
+            userRepository.save(user);
+        }
 
         if (userBalance > productAmount) {
-            user.setBalance(userBalance - productAmount);
+            user.setBalance((long) (userBalance - productAmount));
             product.addUser(user);
             productService.save(product);
 

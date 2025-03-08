@@ -3,11 +3,14 @@ package com.BackEnd.BidPro.Model;
 import com.BackEnd.BidPro.Domain.Role;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import jakarta.persistence.*;
+import jakarta.validation.groups.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,6 +59,14 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "seller")
     private List<Product> sellerProducts;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name="user_interests",
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name="category_id")
+    )
+    private List<Category> categoryList;
 
 //
 //    @Column(nullable = false)

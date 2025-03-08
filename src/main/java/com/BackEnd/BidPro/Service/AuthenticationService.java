@@ -35,6 +35,7 @@ public class AuthenticationService {
                 .governorate(request.getGovernorate())
                 .city(request.getCity())
                 .address(request.getAddress())
+                .balance(0L)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER).build();
 

@@ -53,11 +53,9 @@ public class Product {
 
 
 
-//    @ManyToOne(fetch = FetchType.EAGER,
-//            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-//                       CascadeType.REFRESH, CascadeType.DETACH})
-//    @JoinColumn(name = "category_id")
-//     private Category category;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+     private Category category;
 
     @Column(name = "is_pending")
     private Boolean isPending;

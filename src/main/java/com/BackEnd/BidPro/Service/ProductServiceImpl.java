@@ -1,8 +1,10 @@
 package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
+import com.BackEnd.BidPro.Repo.CategoryRepo;
 import com.BackEnd.BidPro.Repo.ProductRepo;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.cloudinary.model.Image;
@@ -31,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepo productRepo;
     private final ImageService imageService;
     private final CloudinaryService cloudinaryService;
+    private final CategoryRepo categoryRepo;
     private final UserRepository userRepository;
 
 
@@ -60,7 +63,6 @@ public class ProductServiceImpl implements ProductService {
 
     // adding product with photos .
     @Override
-    @Transactional
     public ResponseEntity<?> addProduct(ProductRequest productRequest) {
         try {
             List<MultipartFile> multipartFiles = productRequest.getFiles();
@@ -75,6 +77,10 @@ public class ProductServiceImpl implements ProductService {
             product.setStartDate(formatter.parse(productRequest.getStartDate()));
             product.setEndDate(formatter.parse(productRequest.getEndDate()));
             product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
+            product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
+
+            Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
+            product.setCategory(category.get());
 
             String email = SecurityContextHolder.getContext().getAuthentication().getName();
             User user = userRepository.findByEmail(email)

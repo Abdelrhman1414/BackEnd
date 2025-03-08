@@ -8,8 +8,6 @@ import com.BackEnd.BidPro.Model.User;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,32 +19,41 @@ import java.util.Map;
 public class ImageServiceImpl implements ImageService {
     private final CloudinaryService cloudinaryService;
     private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
 
     @Override
-    @Transactional
-    public ResponseEntity<Map> uploadImage( ImageModel imageModel) {
+    public ResponseEntity<Map> uploadImage(ImageModel imageModel) {
         try {
 
             if (imageModel.getFile().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            String email= SecurityContextHolder.getContext().getAuthentication().getName();
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(()->new RuntimeException("Please provide an valid userName!"));
-
+                    .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
             Image image = new Image();
             image.setUrl(cloudinaryService.uploadFile(imageModel.getFile(), "folder_1"));
-            if (image.getUrl() == null) {
-                return ResponseEntity.badRequest().build();
+            if(user.getImage()!=null){
+                imageRepository.delete(user.getImage());
+                if (image.getUrl() == null) {
+                    return ResponseEntity.badRequest().build();
+                }
+                user.setImage(image);
+                userRepository.save(user);
+                return ResponseEntity.ok().body(Map.of("url", image.getUrl()));
             }
-            user.setImage(image);
-            userRepository.save(user);
-            return ResponseEntity.ok().body(Map.of("url", image.getUrl()));
+            else {
+                if (image.getUrl() == null) {
+                    return ResponseEntity.badRequest().build();
+                }
+                user.setImage(image);
+                userRepository.save(user);
+                return ResponseEntity.ok().body(Map.of("url", image.getUrl()));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
-
     }
 }
+
