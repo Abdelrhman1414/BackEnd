@@ -28,19 +28,16 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) {
 
         var user = User.builder()
-                .userName(request.getUsername())
+                .name(request.getName())
                 .email(request.getEmail())
                 .nationalId(request.getNationalid())
                 .phoneNumber(request.getPhonenumber())
-                .state_region(request.getState_region())
+                .governorate(request.getGovernorate())
                 .city(request.getCity())
                 .address(request.getAddress())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER).build();
 
-        if (repository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UsernameNotFoundException("Email already in use");
-        }
         repository.save(user);
 
         var jwtToken = jwtService.generateToken(user);

@@ -28,8 +28,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY )
     private Long id;
 
-    @Column(nullable = false,unique = true)
-    private String userName;
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false,unique = true)
     private String nationalId;
@@ -44,7 +44,7 @@ public class User implements UserDetails {
 
 
     @Column(nullable = false)
-    private String state_region;
+    private String governorate;
     @Column(nullable = false)
     private String city;
     @Column(nullable = false)

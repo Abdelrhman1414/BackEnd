@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -18,9 +16,9 @@ public class UserServiceImpl implements UserService {
     public UserResponse details() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
         UserResponse userResponse = new UserResponse();
-        userResponse.setUsername(user.getUsername());
+        userResponse.setName(user.getName());
         userResponse.setEmail(user.getEmail());
         if (user.getImage() == null) {
             userResponse.setImage_url(null);
@@ -29,9 +27,10 @@ public class UserServiceImpl implements UserService {
         }
         userResponse.setNationalid(user.getNationalId());
         userResponse.setPhonenumber(user.getPhoneNumber());
-        userResponse.setAddress(user.getAddress());
+        userResponse.setGovernorate(user.getGovernorate());
         userResponse.setCity(user.getCity());
-        userResponse.setState_region(user.getState_region());
+        userResponse.setAddress(user.getAddress());
+
 
         return userResponse;
     }
