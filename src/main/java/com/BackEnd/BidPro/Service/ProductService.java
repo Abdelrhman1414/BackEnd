@@ -5,6 +5,8 @@ import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Model.Product;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 public interface ProductService {
@@ -18,7 +20,7 @@ public interface ProductService {
     Product save(Product product);
 
 
-    ResponseEntity<?> addProduct(ProductRequest productRequest);
+    void addProduct(ProductRequest productRequest) throws IOException, ParseException;
 
     void deleteById(Long theId);
 

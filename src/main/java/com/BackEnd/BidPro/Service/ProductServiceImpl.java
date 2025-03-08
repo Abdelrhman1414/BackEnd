@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,8 +128,7 @@ public class ProductServiceImpl implements ProductService {
 
     // adding product with photos .
     @Override
-    public ResponseEntity<?> addProduct(ProductRequest productRequest) {
-        try {
+    public void addProduct(ProductRequest productRequest) throws IOException, ParseException {
             List<MultipartFile> multipartFiles = productRequest.getFiles();
             Product product = new Product();
             product.setTitle(productRequest.getTitle());
@@ -139,7 +140,6 @@ public class ProductServiceImpl implements ProductService {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             product.setStartDate(formatter.parse(productRequest.getStartDate()));
             product.setEndDate(formatter.parse(productRequest.getEndDate()));
-            product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
             product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
 
             Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
@@ -161,11 +161,7 @@ public class ProductServiceImpl implements ProductService {
             }
             product.setImages(images);
             productRepo.save(product);
-            return ResponseEntity.ok().body("Added product successfully!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+
     }
 
 
