@@ -10,9 +10,11 @@ import com.BackEnd.BidPro.Service.ProductService;
 import com.BackEnd.BidPro.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -68,9 +70,19 @@ public class ProductController {
     }
 
     // add Product with photo
-    @PostMapping("/addProduct")
-    public ResponseEntity<?> addProduct(ProductRequest productRequest) {
+    @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProduct(   @ModelAttribute ProductRequest productRequest) {
+        System.out.println("product request " +
+                " files "+productRequest.getFiles());
+
+        if (productRequest.getFiles() != null) {
+            System.out.println("Files received: " + productRequest.getFiles().size());
+            for (MultipartFile file : productRequest.getFiles()) {
+                System.out.println("File: " + file.getOriginalFilename());
+            }
+        }
         try {
+            productRequest.setBuyNow(String.valueOf(0));
             productService.addProduct(productRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
         }

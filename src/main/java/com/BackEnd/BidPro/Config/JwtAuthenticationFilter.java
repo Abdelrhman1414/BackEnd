@@ -27,17 +27,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                      @NonNull HttpServletResponse response,
                                      @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
+        final String contentType = request.getHeader("Content-Type");
         final String jwt;
         final String userEmail;
+        System.out.println("Authorization Header: " + authHeader);
         if(authHeader ==null || !authHeader.startsWith("Bearer ")) {
+           // System.out.println("No token found or incorrect format.");
             filterChain.doFilter(request, response);
+           // System.out.println(" from here hellllo n");
             return;         // انا هنا بتأكد عموما من صحة  ال token  هل هى valid ولا لا ؟
         }
         jwt = authHeader.substring(7);
         userEmail=jwtService.extractUsername(jwt);
+
+
+//        System.out.println("Extracted Token: " + jwt); // ✅ Debugging Log
+//        System.out.println("Extracted Username: " + userEmail); // ✅ Debugging Log
+//        System.out.println("Content-Type: " + contentType);
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication()== null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if(jwtService.isTokenValid(jwt, userDetails)) {
+             //   System.out.println("Token is valid. Authenticating user...");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

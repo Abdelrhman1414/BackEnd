@@ -102,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
         productResponse.setSellerName(user.getName());
 
+
         productResponse.setUrl(product.getImages().get(0).getUrl());
 
         return productResponse;
