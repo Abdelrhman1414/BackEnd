@@ -134,4 +134,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.insuranceAmountHandling(prouductId), HttpStatus.OK);
     }
 
+    @GetMapping("/paidinsurance/{prouductId}")
+    public ResponseEntity<?> paidInsurance(@PathVariable long prouductId){
+        return new ResponseEntity<>(productService.paidInsurance(prouductId), HttpStatus.OK);    }
 }

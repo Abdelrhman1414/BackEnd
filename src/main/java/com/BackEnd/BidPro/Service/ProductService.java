@@ -26,4 +26,6 @@ public interface ProductService {
 
     ResponseEntity<?> insuranceAmountHandling(long theId);
 
+    Boolean paidInsurance(long theId);
+
 }

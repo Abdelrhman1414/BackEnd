@@ -1,5 +1,6 @@
 package com.BackEnd.BidPro.Dto.Response;
 
+import com.BackEnd.BidPro.cloudinary.model.Image;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
+    private String ID;
     private String description;
     private String startDate;
     private String endDate;

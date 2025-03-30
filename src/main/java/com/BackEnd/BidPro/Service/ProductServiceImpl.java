@@ -22,10 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Date;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.text.SimpleDateFormat;
 
 
@@ -48,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
 
         for (Product product : products) {
             ProductResponse productResponse = new ProductResponse();
+            productResponse.setID(String.valueOf(product.getId()));
             productResponse.setDescription(product.getDescription());
             productResponse.setTitle(product.getTitle());
             productResponse.setQuantity(String.valueOf(product.getQuantity()));
@@ -61,12 +59,18 @@ public class ProductServiceImpl implements ProductService {
 
             productResponse.setCategoryName(product.getCategory().getName());
 
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
-            productResponse.setSellerName(user.getUsername());
 
+            productResponse.setSellerName(product.getSeller().getName());
+
+//            List<String> x = List.of();
+//
+//            for (int i=0;i<product.getImages().size();i++) {
+//                  x.add(product.getImages().get(i).getUrl());
+//            }
+//
+//            productResponse.setUrl(x);
             productResponse.setUrl(product.getImages().get(0).getUrl());
+
             productResponses1.add(productResponse);
         }
         return productResponses1;
@@ -84,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
         } else {
             throw new RuntimeException("Did not find product id - " + theId);
         }
+        productResponse.setID(String.valueOf(product.getId()));
         productResponse.setDescription(product.getDescription());
         productResponse.setTitle(product.getTitle());
         productResponse.setQuantity(String.valueOf(product.getQuantity()));
@@ -97,14 +102,17 @@ public class ProductServiceImpl implements ProductService {
 
         productResponse.setCategoryName(product.getCategory().getName());
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
-        productResponse.setSellerName(user.getName());
 
+        productResponse.setSellerName(product.getSeller().getName());
 
+//        List<String> x = List.of();
+//
+//        for (int i=0;i<product.getImages().size();i++) {
+//            x.add(product.getImages().get(i).getUrl());
+//        }
+//
+//        productResponse.setUrl(x);
         productResponse.setUrl(product.getImages().get(0).getUrl());
-
         return productResponse;
     }
 
@@ -130,38 +138,38 @@ public class ProductServiceImpl implements ProductService {
     // adding product with photos .
     @Override
     public void addProduct(ProductRequest productRequest) throws IOException, ParseException {
-            List<MultipartFile> multipartFiles = productRequest.getFiles();
-            Product product = new Product();
-            product.setTitle(productRequest.getTitle());
-            product.setDescription(productRequest.getDescription());
-            product.setBuyNow(Float.parseFloat(productRequest.getBuyNow()));
-            product.setIncrementbid(Float.parseFloat(productRequest.getIncrementbid()));
-            product.setInsuranceAmount(Float.parseFloat(productRequest.getInsuranceAmount()));
-            product.setQuantity(Integer.parseInt(productRequest.getQuantity()));
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            product.setStartDate(formatter.parse(productRequest.getStartDate()));
-            product.setEndDate(formatter.parse(productRequest.getEndDate()));
-            product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
+        List<MultipartFile> multipartFiles = productRequest.getFiles();
+        Product product = new Product();
+        product.setTitle(productRequest.getTitle());
+        product.setDescription(productRequest.getDescription());
+        product.setBuyNow(Float.parseFloat(productRequest.getBuyNow()));
+        product.setIncrementbid(Float.parseFloat(productRequest.getIncrementbid()));
+        product.setInsuranceAmount(Float.parseFloat(productRequest.getInsuranceAmount()));
+        product.setQuantity(Integer.parseInt(productRequest.getQuantity()));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        product.setStartDate(formatter.parse(productRequest.getStartDate()));
+        product.setEndDate(formatter.parse(productRequest.getEndDate()));
+        product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
 
-            Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
-            product.setCategory(category.get());
+        Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
+        product.setCategory(category.get());
 
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
-            product.setSeller(user);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+        product.setSeller(user);
 
-            List<Image> images = new ArrayList<>();
-            for (MultipartFile image : multipartFiles) {
-                Image img = new Image();
-                img.setUrl(cloudinaryService.uploadFile(image, "product"));
-                images.add(img);
-            }
-            for (Image image : images) {
-                image.setProduct(product);
-            }
-            product.setImages(images);
-            productRepo.save(product);
+        List<Image> images = new ArrayList<>();
+        for (MultipartFile image : multipartFiles) {
+            Image img = new Image();
+            img.setUrl(cloudinaryService.uploadFile(image, "product"));
+            images.add(img);
+        }
+        for (Image image : images) {
+            image.setProduct(product);
+        }
+        product.setImages(images);
+        productRepo.save(product);
 
     }
 
@@ -172,7 +180,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseEntity <?> insuranceAmountHandling(long theId) {
+    public ResponseEntity<?> insuranceAmountHandling(long theId) {
+        Boolean paid = false;
         Product product = findById(theId);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -186,25 +195,59 @@ public class ProductServiceImpl implements ProductService {
         Category category = product.getCategory();
         List<Category> interests = user.getCategoryList();
         boolean alreadyHave = false;
-        for( Category interest : interests ) {
-            if(interest.getId()== category.getId()){
-                alreadyHave=true;
+        for (Category interest : interests) {
+            if (interest.getId() == category.getId()) {
+                alreadyHave = true;
             }
         }
-        if(!alreadyHave){
+        if (!alreadyHave) {
             interests.add(category);
             user.setCategoryList(interests);
             userRepository.save(user);
         }
 
-        if (userBalance > productAmount) {
-            user.setBalance((long) (userBalance - productAmount));
-            product.addUser(user);
-            save(product);
+        long userID = user.getId();
 
-            return ResponseEntity.ok().body("Added insurance table successfully!");
-        } else
+        List<User> productUsers = product.users;
+        for (int i = 0; i < productUsers.size(); i++) {
+            if (userID == productUsers.get(i).getId()) {
+                paid = true;
+            }
+        }
+        if (!paid) {
+            if (userBalance > productAmount) {
+                user.setBalance((long) (userBalance - productAmount));
+                product.addUser(user);
+                save(product);
+                return ResponseEntity.ok().body("Added insurance table successfully!");
+            } else
 
-            return ResponseEntity.ok().body("Your balance is not enough!");
+                return ResponseEntity.ok().body("Your balance is not enough!");
+        }else
+            return ResponseEntity.ok().body("You Already Have Paid The Insurance");
     }
+
+    @Override
+    public Boolean paidInsurance(long theId) {
+
+        Product product = findById(theId);
+        Boolean paid = false;
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+
+        long userID = user.getId();
+
+
+        List<User> productUsers = product.users;
+
+        for (int i = 0; i < productUsers.size(); i++) {
+            if (userID == productUsers.get(i).getId()) {
+                paid = true;
+            }
+        }
+        return paid;
+    }
+
 }

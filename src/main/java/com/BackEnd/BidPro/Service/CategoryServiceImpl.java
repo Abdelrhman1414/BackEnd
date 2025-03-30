@@ -8,6 +8,7 @@ import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
 import com.BackEnd.BidPro.Repo.CategoryRepo;
 import com.BackEnd.BidPro.Repo.UserRepository;
+import com.BackEnd.BidPro.cloudinary.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -91,7 +92,12 @@ public class CategoryServiceImpl implements CategoryService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
             productResponse.setSellerName(user.getName());
+
+            Image img=product.getImages().get(0);
+//            productResponse.setUrl((List<String>) img);
             productResponse.setUrl(product.getImages().get(0).getUrl());
+
+            //productResponse.setUrl(product.getImages());
             productResponseList.add(productResponse);
         }
         categoryResponse.setProducts(productResponseList);
