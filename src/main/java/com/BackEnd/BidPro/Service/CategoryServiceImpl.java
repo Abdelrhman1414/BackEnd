@@ -92,12 +92,12 @@ public class CategoryServiceImpl implements CategoryService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
             productResponse.setSellerName(user.getName());
+            List<String> urls = new ArrayList<>();
+            for(Image image : product.getImages()){
+                urls.add(image.getUrl());
+            }
+            productResponse.setUrls(urls);
 
-            Image img=product.getImages().get(0);
-//            productResponse.setUrl((List<String>) img);
-            productResponse.setUrl(product.getImages().get(0).getUrl());
-
-            //productResponse.setUrl(product.getImages());
             productResponseList.add(productResponse);
         }
         categoryResponse.setProducts(productResponseList);

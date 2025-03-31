@@ -72,22 +72,11 @@ public class ProductController {
     // add Product with photo
     @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProduct(   @ModelAttribute ProductRequest productRequest) {
-        System.out.println("product request " +
-                " files "+productRequest.getFiles());
-
-        if (productRequest.getFiles() != null) {
-            System.out.println("Files received: " + productRequest.getFiles().size());
-            for (MultipartFile file : productRequest.getFiles()) {
-                System.out.println("File: " + file.getOriginalFilename());
-            }
-        }
         try {
-            productRequest.setBuyNow(String.valueOf(0));
             productService.addProduct(productRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
         }
         catch (Exception e) {
-            System.out.println("here");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

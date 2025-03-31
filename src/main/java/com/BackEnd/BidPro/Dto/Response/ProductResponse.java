@@ -24,7 +24,7 @@ public class ProductResponse {
     private String insuranceAmount;
     private String quantity;
     private String startPrice;
-    private String url;
+    private List<String> urls;
     private String sellerName;
     private String categoryName;
 }
