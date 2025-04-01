@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    public static final String[] WHITE_LIST_URL = {"/api/v1/auth/**" };
+    public static final String[] WHITE_LIST_URL = {"/api/v1/auth/**","/ws/**" };
     private final  JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 

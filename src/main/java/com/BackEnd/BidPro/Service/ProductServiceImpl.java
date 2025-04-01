@@ -13,6 +13,9 @@ import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import com.BackEnd.BidPro.cloudinary.service.CloudinaryService;
 import com.BackEnd.BidPro.cloudinary.service.ImageService;
+import com.BackEnd.BidPro.notifications.NotificaionServicee;
+import com.BackEnd.BidPro.notifications.Notification;
+import com.BackEnd.BidPro.notifications.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +44,8 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final UserRepository userRepository;
     private final RoomRepo roomRepo;
+    private final NotificationRepository notificationRepository;
+    private final NotificaionServicee notificationService;
 
 
     @Override
@@ -172,6 +177,11 @@ public class ProductServiceImpl implements ProductService {
         product.setIsPending(true);
         product.setProcessing(false);
         productRepo.save(product);
+        Notification notification = new Notification();
+        notification.setMessage(user.getName() + " your product "+productRequest.getTitle()+" added successfully!");
+        notificationService.sendNotification(String.valueOf(user.getId()), notification);
+        notificationRepository.save(notification);
+
 
     }
 
