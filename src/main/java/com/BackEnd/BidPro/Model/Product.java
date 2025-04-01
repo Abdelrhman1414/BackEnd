@@ -3,10 +3,9 @@ package com.BackEnd.BidPro.Model;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "product")
@@ -21,9 +20,11 @@ public class Product {
     private String description;
 
     @Column(name = "start_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @Column(name = "end_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     @Column(name = "highest_bid")
@@ -48,14 +49,13 @@ public class Product {
     private int quantity;
 
     @ManyToOne
-    @JoinColumn(name="seller_id")
+    @JoinColumn(name = "seller_id")
     private User seller;
-
 
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
-     private Category category;
+    private Category category;
 
     @Column(name = "is_pending")
     private Boolean isPending;
@@ -78,6 +78,9 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     public List<User> users;
+
+    @OneToMany(mappedBy = "productId")
+    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
 
 
     public void addUser(User theUser) {

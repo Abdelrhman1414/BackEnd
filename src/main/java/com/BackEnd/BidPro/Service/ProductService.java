@@ -28,4 +28,11 @@ public interface ProductService {
 
     Boolean paidInsurance(long theId);
 
+    ResponseEntity<?> buyingWithBuyNow(long theId);
+
+
+
+
+
+
 }

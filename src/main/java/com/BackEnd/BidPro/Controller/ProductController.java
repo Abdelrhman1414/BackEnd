@@ -81,12 +81,13 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/product")
-    public ResponseEntity<?> addProductWithNoBuyNow(ProductRequest productRequest) {
+    // Adding product WithOut BuyNow
+    @PostMapping(value="/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProductWithNoBuyNow(@ModelAttribute ProductRequest productRequest) {
         try {
             productRequest.setBuyNow(String.valueOf(0));
             productService.addProduct(productRequest);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully WithOut buyNow");
         }
         catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -104,26 +105,29 @@ public class ProductController {
 
     @DeleteMapping("/products/{prouductId}")
     public ResponseEntity<?> deleteProduct(@PathVariable long prouductId) {
-
         Product tempProduct = productService.findById(prouductId);
-
         // throw exception if null
-
         if (tempProduct == null) {
             throw new RuntimeException("Product id not found - " + prouductId);
         }
-
         productService.deleteById(prouductId);
-
         return new ResponseEntity<>("Product has been deleted successfully", HttpStatus.OK);
     }
 
+    // paying the insurance amount
     @GetMapping("/insurance/{prouductId}")
     public ResponseEntity<?> insuranceAmountHandling(@PathVariable long prouductId) {
         return new ResponseEntity<>(productService.insuranceAmountHandling(prouductId), HttpStatus.OK);
     }
 
+    // if the user paid the insurance?
     @GetMapping("/paidinsurance/{prouductId}")
     public ResponseEntity<?> paidInsurance(@PathVariable long prouductId){
         return new ResponseEntity<>(productService.paidInsurance(prouductId), HttpStatus.OK);    }
+
+    // paying product with BuyNow
+    @GetMapping("/buyNow/{prouductId}")
+    public ResponseEntity<?>buyingProductWithBuyNow(@PathVariable long prouductId) {
+        return new ResponseEntity<>(productService.buyingWithBuyNow(prouductId), HttpStatus.OK);
+    }
 }

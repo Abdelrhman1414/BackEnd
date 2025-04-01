@@ -2,11 +2,13 @@ package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
+import com.BackEnd.BidPro.Model.BidOnProduct;
 import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.Product;
 import com.BackEnd.BidPro.Model.User;
 import com.BackEnd.BidPro.Repo.CategoryRepo;
 import com.BackEnd.BidPro.Repo.ProductRepo;
+import com.BackEnd.BidPro.Repo.RoomRepo;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import com.BackEnd.BidPro.cloudinary.service.CloudinaryService;
@@ -38,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
     private final CloudinaryService cloudinaryService;
     private final CategoryRepo categoryRepo;
     private final UserRepository userRepository;
+    private final RoomRepo roomRepo;
 
 
     @Override
@@ -48,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
         for (Product product : products) {
             ProductResponse productResponse = new ProductResponse();
+            productResponse.setID(String.valueOf(product.getId()));
             productResponse.setDescription(product.getDescription());
             productResponse.setTitle(product.getTitle());
             productResponse.setQuantity(String.valueOf(product.getQuantity()));
@@ -64,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
 
             productResponse.setSellerName(product.getSeller().getName());
             List<String> urls = new ArrayList<>();
-            for(Image image : product.getImages()){
+            for (Image image : product.getImages()) {
                 urls.add(image.getUrl());
             }
             productResponse.setUrls(urls);
@@ -85,6 +89,7 @@ public class ProductServiceImpl implements ProductService {
         } else {
             throw new RuntimeException("Did not find product id - " + theId);
         }
+        productResponse.setID(String.valueOf(product.getId()));
         productResponse.setDescription(product.getDescription());
         productResponse.setTitle(product.getTitle());
         productResponse.setQuantity(String.valueOf(product.getQuantity()));
@@ -102,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
 
         productResponse.setSellerName(user.getName());
         List<String> urls = new ArrayList<>();
-        for(Image image : product.getImages()){
+        for (Image image : product.getImages()) {
             urls.add(image.getUrl());
         }
         productResponse.setUrls(urls);
@@ -132,41 +137,41 @@ public class ProductServiceImpl implements ProductService {
     // adding product with photos .
     @Override
     public void addProduct(ProductRequest productRequest) throws IOException, ParseException {
-            List<MultipartFile> multipartFiles = productRequest.getFiles();
-            Product product = new Product();
-            product.setTitle(productRequest.getTitle());
-            product.setDescription(productRequest.getDescription());
-            product.setBuyNow(Float.parseFloat(productRequest.getBuyNow()));
-            product.setIncrementbid(Float.parseFloat(productRequest.getIncrementbid()));
-            product.setInsuranceAmount(Float.parseFloat(productRequest.getInsuranceAmount()));
-            product.setQuantity(Integer.parseInt(productRequest.getQuantity()));
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            product.setStartDate(formatter.parse(productRequest.getStartDate()));
-            product.setEndDate(formatter.parse(productRequest.getEndDate()));
-            product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
+        List<MultipartFile> multipartFiles = productRequest.getFiles();
+        Product product = new Product();
+        product.setTitle(productRequest.getTitle());
+        product.setDescription(productRequest.getDescription());
+        product.setBuyNow(Float.parseFloat(productRequest.getBuyNow()));
+        product.setIncrementbid(Float.parseFloat(productRequest.getIncrementbid()));
+        product.setInsuranceAmount(Float.parseFloat(productRequest.getInsuranceAmount()));
+        product.setQuantity(Integer.parseInt(productRequest.getQuantity()));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        product.setStartDate(formatter.parse(productRequest.getStartDate()));
+        product.setEndDate(formatter.parse(productRequest.getEndDate()));
+        product.setStartPrice(Float.parseFloat(productRequest.getStartPrice()));
 
-            Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
-            product.setCategory(category.get());
+        Optional<Category> category = categoryRepo.findById(Long.parseLong(productRequest.getCategoryId()));
+        product.setCategory(category.get());
 
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
-            product.setSeller(user);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+        product.setSeller(user);
 
-            List<Image> images = new ArrayList<>();
-            for (MultipartFile image : multipartFiles) {
-                Image img = new Image();
-                img.setUrl(cloudinaryService.uploadFile(image, "product"));
-                images.add(img);
-            }
-            for (Image image : images) {
-                image.setProduct(product);
-            }
-            product.setImages(images);
-            product.setAvailable(true);
-            product.setIsPending(true);
-            product.setProcessing(false);
-            productRepo.save(product);
+        List<Image> images = new ArrayList<>();
+        for (MultipartFile image : multipartFiles) {
+            Image img = new Image();
+            img.setUrl(cloudinaryService.uploadFile(image, "product"));
+            images.add(img);
+        }
+        for (Image image : images) {
+            image.setProduct(product);
+        }
+        product.setImages(images);
+        product.setAvailable(false);
+        product.setIsPending(true);
+        product.setProcessing(false);
+        productRepo.save(product);
 
     }
 
@@ -176,8 +181,10 @@ public class ProductServiceImpl implements ProductService {
         productRepo.deleteById(theId);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
-    public ResponseEntity <?> insuranceAmountHandling(long theId) {
+    public ResponseEntity<?> insuranceAmountHandling(long theId) {
         Product product = findById(theId);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -191,12 +198,12 @@ public class ProductServiceImpl implements ProductService {
         Category category = product.getCategory();
         List<Category> interests = user.getCategoryList();
         boolean alreadyHave = false;
-        for( Category interest : interests ) {
-            if(interest.getId()== category.getId()){
-                alreadyHave=true;
+        for (Category interest : interests) {
+            if (interest.getId() == category.getId()) {
+                alreadyHave = true;
             }
         }
-        if(!alreadyHave){
+        if (!alreadyHave) {
             interests.add(category);
             user.setCategoryList(interests);
             userRepository.save(user);
@@ -206,11 +213,12 @@ public class ProductServiceImpl implements ProductService {
             user.setBalance((long) (userBalance - productAmount));
             product.addUser(user);
             save(product);
+            addToRoom(theId);
 
-            return ResponseEntity.ok().body("Added insurance table successfully!");
+            return ResponseEntity.ok().body("Added insurance table successfully :)");
         } else
 
-            return ResponseEntity.ok().body("Your balance is not enough!");
+            return ResponseEntity.ok().body("Your balance is not enough :(");
     }
 
 
@@ -225,8 +233,6 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
 
         long userID = user.getId();
-
-
         List<User> productUsers = product.users;
 
         for (int i = 0; i < productUsers.size(); i++) {
@@ -236,4 +242,71 @@ public class ProductServiceImpl implements ProductService {
         }
         return paid;
     }
+
+    @Override
+    public ResponseEntity<?> buyingWithBuyNow(long theId) {
+        Product product = findById(theId);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+
+        Long userBalance = user.getBalance();
+
+        if (product.getAvailable()) {
+            if (paidInsurance(theId)) {
+                if (product.getBuyNow() != 0) {
+                    if (userBalance >= product.getBuyNow()) {
+                        user.setBalance((long) (userBalance - product.getBuyNow()));
+                        deleteById(theId);
+                        return ResponseEntity.ok().body("You Have bought The Product Successfully:)");
+                    } else
+                        return ResponseEntity.ok().body("Your Balance Is Not Enough :(");
+                } else
+                    return ResponseEntity.ok().body("The Product Can't Be Bought With BuyNow :(");
+            } else
+                return ResponseEntity.ok().body("You Have To Pay The Insurance First :( ");
+        } else
+            return ResponseEntity.ok().body("The Product Isn't Available :(");
+    }
+
+
+    // table Bids On Product
+    public void addToRoom(long theId) {
+        Product product = findById(theId);
+
+        if (paidInsurance(theId)) {
+
+            BidOnProduct bidOnProduct = new BidOnProduct();
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+            long userId = user.getId();
+            bidOnProduct.setUserId(user);
+            bidOnProduct.setProductId(product);
+
+
+            bidOnProduct.setStartDate(product.getStartDate());
+
+            bidOnProduct.setEndDate(product.getEndDate());
+
+            bidOnProduct.setHighestBid(product.getHighestPrice());
+
+            saveRoom(bidOnProduct);
+
+        }
+    }
+
+    public BidOnProduct saveRoom(BidOnProduct bidOnProduct) {
+        return roomRepo.save(bidOnProduct);
+    }
+
+    public List<BidOnProduct> findAllBidOnProduct() {
+        return roomRepo.findAll();
+    }
+
+    public void delete(BidOnProduct bidOnProduct) {
+        roomRepo.delete(bidOnProduct);
+    }
+
 }
