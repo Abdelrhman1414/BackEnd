@@ -1,10 +1,10 @@
 package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Dto.Response.ABC;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
-import com.BackEnd.BidPro.Model.Category;
+import com.BackEnd.BidPro.Dto.Response.RoomResponse;
 import com.BackEnd.BidPro.Model.Product;
-import com.BackEnd.BidPro.Model.User;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Service.ProductService;
 import com.BackEnd.BidPro.Service.UserService;
@@ -12,12 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -130,4 +126,34 @@ public class ProductController {
     public ResponseEntity<?>buyingProductWithBuyNow(@PathVariable long prouductId) {
         return new ResponseEntity<>(productService.buyingWithBuyNow(prouductId), HttpStatus.OK);
     }
+    //Find all Products That I Have Published
+    @GetMapping("/myPosts")
+    public ResponseEntity<?> findMyPosts() {
+
+        return new ResponseEntity<>(productService.findMyPosts(), HttpStatus.OK);
+    }
+
+    //find Products that i have bid on it
+    @GetMapping("/myBids")
+    public ResponseEntity<?> findMyBids() {
+        return new ResponseEntity<>(productService.findMyBids(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rooms")
+    public ResponseEntity<?> findAllRoom() {
+        return new ResponseEntity<>(productService.findAllBidOnProduct(), HttpStatus.OK);
+    }
+
+    @GetMapping("/room/{prouductId}")
+    public ResponseEntity<?> findRoom(@PathVariable long prouductId) {
+        return new ResponseEntity<>(productService.findRoomWithID(prouductId), HttpStatus.OK);
+    }
+// Note Not Working Right now
+    @PutMapping("/bid/{prouductId}")
+    public ResponseEntity<?> updateProductInRoom(@PathVariable long prouductId,@RequestBody ABC rr) {
+        RoomResponse dbRoomResponse =productService.updateRoom(rr,prouductId);
+        return new ResponseEntity<>(dbRoomResponse, HttpStatus.OK);
+
+    }
+
 }

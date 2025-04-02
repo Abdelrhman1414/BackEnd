@@ -39,5 +39,7 @@ public class BidOnProduct {
     @Column(name = "highest_bid")
     private float highestBid;
 
+    @Column(name = "biding_date")
+    private Date bidingDate;
 
 }
