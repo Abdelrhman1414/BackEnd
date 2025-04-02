@@ -30,4 +30,5 @@ public class ProductResponse {
     private List<String> urls;
     private String sellerName;
     private String categoryName;
+    private boolean isPending;
 }

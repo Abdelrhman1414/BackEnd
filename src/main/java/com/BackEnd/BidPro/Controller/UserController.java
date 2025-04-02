@@ -31,5 +31,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
+    @GetMapping("/myads")
+    public ResponseEntity<?> userAdvertisements() {
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(service.userAdvertisements());
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
