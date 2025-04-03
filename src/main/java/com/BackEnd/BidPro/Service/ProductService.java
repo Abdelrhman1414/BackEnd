@@ -1,7 +1,10 @@
 package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
+import com.BackEnd.BidPro.Dto.Response.ABC;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
+import com.BackEnd.BidPro.Dto.Response.RoomResponse;
+import com.BackEnd.BidPro.Model.BidOnProduct;
 import com.BackEnd.BidPro.Model.Product;
 import org.springframework.http.ResponseEntity;
 
@@ -30,6 +33,19 @@ public interface ProductService {
 
     ResponseEntity<?> buyingWithBuyNow(long theId);
 
+    List<ProductResponse> findMyPosts();
+
+    List<ProductResponse> findMyBids();
+
+    List<RoomResponse> findAllBidOnProduct();
+
+    RoomResponse findRoomWithID(long theId);
+
+    BidOnProduct saveRoom(BidOnProduct bidOnProduct);
+
+    RoomResponse updateRoom(ABC rr, long theId);
+
+//    List<BidOnProduct> f(long theId);
 
 
 

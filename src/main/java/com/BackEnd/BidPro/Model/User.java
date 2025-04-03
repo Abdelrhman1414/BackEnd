@@ -71,8 +71,8 @@ public class User implements UserDetails {
     )
     private List<Category> categoryList;
 
-    @OneToMany(mappedBy = "userId")
-    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
+//    @OneToMany(mappedBy = "userId")
+//    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
 
 //
 //    @Column(nullable = false)

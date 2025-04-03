@@ -79,8 +79,8 @@ public class Product {
     )
     public List<User> users;
 
-    @OneToMany(mappedBy = "productId")
-    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
+//    @OneToMany(mappedBy = "productId")
+//    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
 
 
     public void addUser(User theUser) {
