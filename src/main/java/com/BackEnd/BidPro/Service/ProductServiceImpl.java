@@ -180,6 +180,7 @@ public class ProductServiceImpl implements ProductService {
         Notification notification = new Notification();
         notification.setMessage(user.getName() + " your product "+productRequest.getTitle()+" added successfully!");
         notificationService.sendNotification(String.valueOf(user.getId()), notification);
+        notification.setUser(user);
         notificationRepository.save(notification);
 
 

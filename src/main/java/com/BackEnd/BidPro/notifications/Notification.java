@@ -1,5 +1,6 @@
 package com.BackEnd.BidPro.notifications;
 
+import com.BackEnd.BidPro.Model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,10 @@ public class Notification {
 
     @Column(name="message")
     private String message;
+
+    @ManyToOne(cascade=CascadeType.PERSIST)
+    @JoinColumn(name = "user_id")
+    private User user;
 
 
 }

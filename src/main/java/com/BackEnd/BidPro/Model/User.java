@@ -2,6 +2,7 @@ package com.BackEnd.BidPro.Model;
 
 import com.BackEnd.BidPro.Domain.Role;
 import com.BackEnd.BidPro.cloudinary.model.Image;
+import com.BackEnd.BidPro.notifications.Notification;
 import jakarta.persistence.*;
 import jakarta.validation.groups.Default;
 import lombok.Data;
@@ -86,6 +87,9 @@ public class User implements UserDetails {
                     CascadeType.DETACH, CascadeType.REFRESH},
             mappedBy = "users")
     private List<Product> products;
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
