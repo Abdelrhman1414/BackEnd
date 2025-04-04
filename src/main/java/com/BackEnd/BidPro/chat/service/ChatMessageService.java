@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ChatMessageService {
     void sendMessage(MessageRequest messageRequest);
-    List<MessagesResponse> roomMessages(Long id);
+    List<MessagesResponse> roomMessages(Long roomId);
 }

@@ -25,8 +25,11 @@ public class Room {
     private Long id;
 
     @Column(name = "creation_date")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date creationDate;
+
+    @Column
+    private String name;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
