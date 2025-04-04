@@ -1,5 +1,6 @@
 package com.BackEnd.BidPro.Service;
 
+import com.BackEnd.BidPro.Dto.Request.UserRequest;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Dto.Response.UserResponse;
 import com.BackEnd.BidPro.Model.Product;
@@ -40,6 +41,36 @@ public class UserServiceImpl implements UserService {
 
 
         return userResponse;
+    }
+
+    @Override
+    public void edit(UserRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
+
+        if (request.getName()!=null){
+            user.setName(request.getName());
+            System.out.println(user.getName());
+        }
+
+        if (request.getPhonenumber()!=null){
+            user.setPhoneNumber(request.getPhonenumber());
+        }
+
+        if (request.getGovernorate()!=null){
+            user.setGovernorate(request.getGovernorate());
+        }
+        if (request.getCity()!=null){
+            request.setCity(request.getCity());
+        }
+
+        if (request.getAddress()!=null){
+            request.setAddress(request.getAddress());
+        }
+
+        userRepository.save(user);
     }
 
     @Override
