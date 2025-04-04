@@ -1,6 +1,8 @@
 package com.BackEnd.BidPro.Model;
 
 import com.BackEnd.BidPro.Domain.Role;
+import com.BackEnd.BidPro.chat.model.ChatMessage;
+import com.BackEnd.BidPro.chat.model.Room;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import com.BackEnd.BidPro.notifications.Notification;
 import jakarta.persistence.*;
@@ -90,6 +92,20 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Notification> notifications;
+
+
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name="users_in_room",
+            joinColumns = @JoinColumn(name="user_id"),
+            inverseJoinColumns = @JoinColumn(name="room_id")
+    )
+    private List<Room> rooms;
+
+    @OneToMany(mappedBy = "sender")
+    private List<ChatMessage> Messages;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
