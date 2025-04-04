@@ -44,6 +44,7 @@ public class SecurityConfiguration {
                                 ابقى ضيف بقا هنا الحاجات اللى هتكون للادمن مثلا
                                 .requestMatchers(
                                  */
+                                .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated()
                 )

@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Long id;
     private String name;
-    private  String email;
+    private String email;
     private String nationalid;
-    private  String phonenumber;
+    private String phonenumber;
     private String governorate;
     private String city;
     private String address;

@@ -99,16 +99,16 @@ public class ProductController {
     }
 
 
-    @DeleteMapping("/products/{prouductId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable long prouductId) {
-        Product tempProduct = productService.findById(prouductId);
-        // throw exception if null
-        if (tempProduct == null) {
-            throw new RuntimeException("Product id not found - " + prouductId);
-        }
-        productService.deleteById(prouductId);
-        return new ResponseEntity<>("Product has been deleted successfully", HttpStatus.OK);
-    }
+//    @DeleteMapping("/products/{prouductId}")
+//    public ResponseEntity<?> deleteProduct(@PathVariable long prouductId) {
+//        Product tempProduct = productService.findById(prouductId);
+//        // throw exception if null
+//        if (tempProduct == null) {
+//            throw new RuntimeException("Product id not found - " + prouductId);
+//        }
+//        productService.deleteById(prouductId);
+//        return new ResponseEntity<>("Product has been deleted successfully", HttpStatus.OK);
+//    }
 
     // paying the insurance amount
     @GetMapping("/insurance/{prouductId}")
