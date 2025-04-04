@@ -15,12 +15,12 @@ public interface CategoryService {
 
     CategoryResponse findCategoryAndProductsByCategoryId(Long theId);
 
-    ResponseEntity<?> addCategory(CategoryRequest categoryRequest);
+    void addCategory(CategoryRequest categoryRequest);
 
 
     Category save(Category category);
 
-    void deleteById(Long theId);
+    void deleteCategory(Long id);
 
 
 }

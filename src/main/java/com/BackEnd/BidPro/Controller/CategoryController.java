@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+
 public class CategoryController {
 
     private CategoryService categoryService;
@@ -72,20 +73,17 @@ public class CategoryController {
         }
     }
 
-    @PostMapping("/categories")
-    public Category addCategory(@RequestBody Category theCategory) {
+//    @PostMapping("/categories")
+//    public Category addCategory(@RequestBody Category theCategory) {
+//
+//        theCategory.setId(0L);
+//
+//        Category dbCategory = categoryService.save(theCategory);
+//
+//        return dbCategory;
+//    }
 
-        theCategory.setId(0L);
 
-        Category dbCategory = categoryService.save(theCategory);
-
-        return dbCategory;
-    }
-
-    @PostMapping("/addCategory")
-    public ResponseEntity<?> addCategory(CategoryRequest categoryRequest) {
-        return new ResponseEntity<>(categoryService.addCategory(categoryRequest), HttpStatus.OK);
-    }
 
 
     @PutMapping("/categories")
@@ -96,20 +94,20 @@ public class CategoryController {
         return dbCategory;
     }
 
-    @DeleteMapping("/categories/{categoryId}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
-
-        CategoryResponse tempCategory = categoryService.findById(categoryId);
-
-        // throw exception if null
-
-        if (tempCategory == null) {
-            throw new RuntimeException("Category id not found - " + categoryId);
-        }
-
-        categoryService.deleteById(categoryId);
-
-        return new ResponseEntity<>("Category has been deleted successfully", HttpStatus.OK);
-    }
+//    @DeleteMapping("/categories/{categoryId}")
+//    public ResponseEntity<?> deleteCategory(@PathVariable Long categoryId) {
+//
+//        CategoryResponse tempCategory = categoryService.findById(categoryId);
+//
+//        // throw exception if null
+//
+//        if (tempCategory == null) {
+//            throw new RuntimeException("Category id not found - " + categoryId);
+//        }
+//
+//        categoryService.deleteById(categoryId);
+//
+//        return new ResponseEntity<>("Category has been deleted successfully", HttpStatus.OK);
+//    }
 
 }

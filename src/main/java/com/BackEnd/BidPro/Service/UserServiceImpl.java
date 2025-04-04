@@ -21,11 +21,38 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        List<UserResponse> userResponses = new ArrayList<>();
+        for (User user : users) {
+            UserResponse userResponse = new UserResponse();
+            userResponse.setId(user.getId());
+            userResponse.setName(user.getName());
+            userResponse.setEmail(user.getEmail());
+            userResponse.setNationalid(user.getNationalId());
+            userResponse.setPhonenumber(user.getPhoneNumber());
+            userResponse.setGovernorate(user.getGovernorate());
+            userResponse.setCity(user.getCity());
+            userResponse.setAddress(user.getAddress());
+            userResponses.add(userResponse);
+        }
+        return userResponses;
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("Something Wrong Happened, Please Try Again!"));
+        userRepository.delete(user);
+    }
+
+
+    @Override
     public UserResponse details() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
         UserResponse userResponse = new UserResponse();
+        userResponse.setId(user.getId());
         userResponse.setName(user.getName());
         userResponse.setEmail(user.getEmail());
         if (user.getImage() == null) {

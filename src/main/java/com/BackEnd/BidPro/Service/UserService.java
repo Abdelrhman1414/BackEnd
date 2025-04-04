@@ -8,6 +8,9 @@ import com.BackEnd.BidPro.Model.User;
 import java.util.List;
 
 public interface UserService {
+    List<UserResponse> getAllUsers();
+    void deleteUser(Long id);
+
     UserResponse details();
     void         edit(UserRequest request);
     List<ProductResponse> userAdvertisements();

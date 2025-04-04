@@ -106,17 +106,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<?> addCategory(CategoryRequest categoryRequest) {
-        try {
-            Category category = new Category();
-            category.setName(categoryRequest.getName());
-            categoryRepo.save(category);
-            return ResponseEntity.ok().body("Added Category successfully!");
+    public void addCategory(CategoryRequest categoryRequest) {
+//        try {
+//            Category category = new Category();
+//            category.setName(categoryRequest.getName());
+//            categoryRepo.save(category);
+//            return ResponseEntity.ok().body("Added Category successfully!");
+//
+//        } catch (Exception e) {
+//
+//            return null;
+//        }
+        Category category = new Category();
+        category.setName(categoryRequest.getName());
+        categoryRepo.save(category);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     @Override
@@ -125,7 +129,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteById(Long theId) {
-        categoryRepo.deleteById(theId);
+    public void deleteCategory(Long id)
+    {
+        Category category=categoryRepo.findById(id).orElseThrow(()->new RuntimeException("Something Wrong Happened, Please Try Again!"));
+        categoryRepo.delete(category);
     }
 }

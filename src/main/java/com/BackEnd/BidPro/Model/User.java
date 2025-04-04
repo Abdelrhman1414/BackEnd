@@ -60,7 +60,7 @@ public class User implements UserDetails {
     @JoinColumn(name="image_id")
     private Image image;
 
-    @OneToMany(mappedBy = "seller")
+    @OneToMany(mappedBy = "seller",cascade = CascadeType.REMOVE)
     private List<Product> sellerProducts;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -88,7 +88,7 @@ public class User implements UserDetails {
             mappedBy = "users")
     private List<Product> products;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Notification> notifications;
 
     @Override

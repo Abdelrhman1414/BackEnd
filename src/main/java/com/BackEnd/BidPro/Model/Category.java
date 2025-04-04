@@ -23,7 +23,7 @@ public class Category {
     @JoinColumn(name = "category_id" ,referencedColumnName = "id")
     private List<Product> products;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name="user_interests",
             joinColumns = @JoinColumn(name="category_id"),
