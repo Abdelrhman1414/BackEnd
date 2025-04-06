@@ -77,7 +77,7 @@ public class AuthenticationController {
 
         }
      catch (AuthenticationException e) {
-         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect email or password");
                           }
     }
     @PostMapping("/logout")

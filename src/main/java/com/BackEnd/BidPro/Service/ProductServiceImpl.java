@@ -64,30 +64,161 @@ public class ProductServiceImpl implements ProductService {
 
             productResponse.setCategoryName(product.getCategory().getName());
 
+
             productResponse.setSellerName(product.getSeller().getName());
             List<String> urls = new ArrayList<>();
             for (Image image : product.getImages()) {
                 urls.add(image.getUrl());
             }
             productResponse.setUrls(urls);
-            productResponse.setUserBidOnThisProduct(false);
             productResponses1.add(productResponse);
         }
         return productResponses1;
     }
 
     @Override
-    public List<ProductResponse> findAllForUsers() {
-        List<ProductResponse> productResponses = findAll();
+    public List<ProductResponse> getAllPendingProducts() {
 
-        for (ProductResponse productResponse : productResponses) {
-            if (paidInsurance(Long.parseLong(productResponse.getID()))) {
-                productResponse.setUserBidOnThisProduct(true);
+        List<Product> products = productRepo.findAll();
+        List<ProductResponse> productResponses = new ArrayList<>();
+        for (Product product : products) {
+            if(!product.getAvailable() && product.getIsPending()&&!product.getProcessing()){
+                ProductResponse productResponse = new ProductResponse();
+                productResponse.setID(String.valueOf(product.getId()));
+                productResponse.setDescription(product.getDescription());
+                productResponse.setTitle(product.getTitle());
+                productResponse.setQuantity(String.valueOf(product.getQuantity()));
+                productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+                productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+                productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                productResponse.setStartDate(formatter.format(product.getStartDate()));
+                productResponse.setEndDate(formatter.format(product.getEndDate()));
+                productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+
+                productResponse.setCategoryName(product.getCategory().getName());
+
+
+                productResponse.setSellerName(product.getSeller().getName());
+                List<String> urls = new ArrayList<>();
+                for (Image image : product.getImages()) {
+                    urls.add(image.getUrl());
+                }
+                productResponse.setUrls(urls);
+                productResponse.setPending(product.getIsPending());
+
+                productResponses.add(productResponse);
+
             }
         }
 
         return productResponses;
     }
+
+    @Override
+    public void approveProductById(Long id) {
+        Optional<Product> product = productRepo.findById(id);
+        if (product.isPresent()&&!product.get().getAvailable() && product.get().getIsPending()&&!product.get().getProcessing()) {
+            product.get().setAvailable(true);
+            product.get().setIsPending(false);
+
+        }
+        else {
+            throw new RuntimeException("Did not find product id - " + id);
+        }
+
+    }
+
+    @Override
+    public void declineProductById(Long id) {
+        Optional<Product> product = productRepo.findById(id);
+        if (product.isPresent()&&!product.get().getAvailable() && product.get().getIsPending()&&!product.get().getProcessing()) {
+            productRepo.delete(product.get());
+        }
+        else {
+            throw new RuntimeException("Did not find product id - " + id);
+        }
+
+    }
+
+    @Override
+    public List<ProductResponse> getAllProcessingProducts() {
+        List<Product> products = productRepo.findAll();
+        List<ProductResponse> productResponses = new ArrayList<>();
+        for (Product product : products) {
+            if(!product.getAvailable() && !product.getIsPending()&&product.getProcessing()){
+                ProductResponse productResponse = new ProductResponse();
+                productResponse.setID(String.valueOf(product.getId()));
+                productResponse.setDescription(product.getDescription());
+                productResponse.setTitle(product.getTitle());
+                productResponse.setQuantity(String.valueOf(product.getQuantity()));
+                productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+                productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+                productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                productResponse.setStartDate(formatter.format(product.getStartDate()));
+                productResponse.setEndDate(formatter.format(product.getEndDate()));
+                productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+
+                productResponse.setCategoryName(product.getCategory().getName());
+
+
+                productResponse.setSellerName(product.getSeller().getName());
+                List<String> urls = new ArrayList<>();
+                for (Image image : product.getImages()) {
+                    urls.add(image.getUrl());
+                }
+                productResponse.setUrls(urls);
+                productResponse.setPending(product.getIsPending());
+
+                productResponses.add(productResponse);
+
+            }
+        }
+
+        return productResponses;
+    }
+
+    @Override
+    public List<ProductResponse> getAllLiveProducts() {
+        SimpleDateFormat formatterr = new SimpleDateFormat("yyyy-MM-dd");
+        Date date =new Date();
+        formatterr.format(date);
+        List<Product> products = productRepo.findLiveProducts(date);
+        List<ProductResponse> productResponses = new ArrayList<>();
+        for (Product product : products) {
+
+                ProductResponse productResponse = new ProductResponse();
+                productResponse.setID(String.valueOf(product.getId()));
+                productResponse.setDescription(product.getDescription());
+                productResponse.setTitle(product.getTitle());
+                productResponse.setQuantity(String.valueOf(product.getQuantity()));
+                productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+                productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+                productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                productResponse.setStartDate(formatter.format(product.getStartDate()));
+                productResponse.setEndDate(formatter.format(product.getEndDate()));
+                productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+
+                productResponse.setCategoryName(product.getCategory().getName());
+
+
+                productResponse.setSellerName(product.getSeller().getName());
+                List<String> urls = new ArrayList<>();
+                for (Image image : product.getImages()) {
+                    urls.add(image.getUrl());
+                }
+                productResponse.setUrls(urls);
+                productResponse.setPending(product.getIsPending());
+                productResponses.add(productResponse);
+
+            }
+
+
+        return productResponses;
+    }
+
 
     @Override
     public ProductResponse findByIdResponse(long theId) {
@@ -183,9 +314,7 @@ public class ProductServiceImpl implements ProductService {
         product.setAvailable(false);
         product.setIsPending(true);
         product.setProcessing(false);
-//        product.setBuyerId(0);
         product.setHighestPrice(0);
-
         productRepo.save(product);
         Notification notification = new Notification();
         notification.setMessage(user.getName() + " your product " + productRequest.getTitle() + " added successfully!");
@@ -308,43 +437,9 @@ public class ProductServiceImpl implements ProductService {
         return paid;
     }
 
-//    public List<User> usersWhoPaidTheInsurance(long theId) {
-//        ProductResponse productResponse = findByIdResponse(theId);
-//        List<User> users = userRepository.findAll();
-//
-//        for (User user : users) {
-//            if (productResponse.getUserBidOnThisProduct()) {
-//            }
-//        }
-//    }
-
-    public Boolean ifThisUserPaidInsurance(long productId, long userId) {
-
-        Product product = findById(productId);
-        Boolean paid = false;
-
-        long userID = userId;
-
-        List<User> productUsers = product.users;
-
-        for (int i = 0; i < productUsers.size(); i++) {
-            if (userID == productUsers.get(i).getId()) {
-                paid = true;
-            }
-        }
-        return paid;
-    }
-
-
-    public void deleteFromInsuranceTable(long theId) {
-
-    }
-
     @Override
     public ResponseEntity<?> buyingWithBuyNow(long theId) {
         Product product = findById(theId);
-
-        User seller = product.getSeller();
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
@@ -356,29 +451,8 @@ public class ProductServiceImpl implements ProductService {
             if (paidInsurance(theId)) {
                 if (product.getBuyNow() != 0) {
                     if (userBalance >= product.getBuyNow()) {
-                        long transaction = (long) (userBalance - product.getBuyNow());
-                        user.setBalance(transaction);
-                        seller.setBalance(seller.getBalance() + (long) product.getBuyNow());
-                        product.setAvailable(false);
-                        product.setBuyerId(user.getId());
-
-                        List<User> productUsers = product.users;
-
-
-                        for (int i = 0; i < productUsers.size(); i++) {
-
-                            System.out.println(productUsers.get(i).getName() + " " + ifThisUserPaidInsurance(product.getId(), productUsers.get(i).getId()));
-                            if (ifThisUserPaidInsurance(product.getId(), productUsers.get(i).getId())) {
-
-                                if (productUsers.get(i).getId() != user.getId()) {
-                                    productUsers.get(i).setBalance(productUsers.get(i).getBalance() + (long) product.getInsuranceAmount());
-
-                                }
-                            }
-                        }
-                            productUsers.clear();
-
-                        productRepo.save(product);
+                        user.setBalance((long) (userBalance - product.getBuyNow()));
+                        deleteById(theId);
                         return ResponseEntity.ok().body("You Have bought The Product Successfully:)");
                     } else
                         return ResponseEntity.ok().body("Your Balance Is Not Enough :(");
@@ -389,10 +463,6 @@ public class ProductServiceImpl implements ProductService {
         } else
             return ResponseEntity.ok().body("The Product Isn't Available :(");
     }
-
-//    public List<User> getUsers(){
-//
-//    }
 
 
     // table Bids On Product

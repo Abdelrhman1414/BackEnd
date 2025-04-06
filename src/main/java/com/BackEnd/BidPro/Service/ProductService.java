@@ -13,11 +13,15 @@ import java.text.ParseException;
 import java.util.List;
 
 public interface ProductService {
-
     List<ProductResponse> findAll();
 
-    List<ProductResponse> findAllForUsers();
+    List<ProductResponse> getAllPendingProducts();
 
+    void approveProductById(Long id);
+    void declineProductById(Long id);
+
+    List<ProductResponse> getAllProcessingProducts();
+    List<ProductResponse> getAllLiveProducts();
 
     ProductResponse findByIdResponse(long theId);
 
@@ -49,6 +53,7 @@ public interface ProductService {
 
     RoomResponse updateRoom(ABC rr, long theId);
 
+//    List<BidOnProduct> f(long theId);
 
 
 

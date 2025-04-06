@@ -1,18 +1,20 @@
-package com.BackEnd.BidPro.Dto.Response;
+package com.BackEnd.BidPro.chat.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse {
+public class RoomResponse {
+
     private Long id;
     private String name;
-    private List<ProductResponse> products;
+    private Date creationDate;
+
 }

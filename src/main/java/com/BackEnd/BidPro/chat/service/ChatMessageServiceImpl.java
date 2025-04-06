@@ -51,8 +51,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     }
 
     @Override
-    public List<MessagesResponse> roomMessages(Long id) {
-        List<ChatMessage> Messages = chatMessageRepository.findSortedMessage(id);
+    public List<MessagesResponse> roomMessages(Long roomId) {
+        List<ChatMessage> Messages = chatMessageRepository.findSortedMessage(roomId);
         List<MessagesResponse> messageResponses = new ArrayList<>();
         for(ChatMessage chatMessage : Messages){
             MessagesResponse messageResponse = new MessagesResponse();

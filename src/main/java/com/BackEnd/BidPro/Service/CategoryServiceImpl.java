@@ -38,6 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryResponse> categoryResponseList = new ArrayList<>();
         for (Category category : categoryList) {
             CategoryResponse categoryResponse = new CategoryResponse();
+            categoryResponse.setId(category.getId());
             categoryResponse.setName(category.getName());
             categoryResponseList.add(categoryResponse);
         }
