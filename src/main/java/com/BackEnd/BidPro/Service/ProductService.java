@@ -15,6 +15,9 @@ import java.util.List;
 public interface ProductService {
     List<ProductResponse> findAll();
 
+    List<ProductResponse> findAllForUsers();
+
+
     List<ProductResponse> getAllPendingProducts();
 
     void approveProductById(Long id);
