@@ -25,16 +25,18 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findAll();
         List<UserResponse> userResponses = new ArrayList<>();
         for (User user : users) {
-            UserResponse userResponse = new UserResponse();
-            userResponse.setId(user.getId());
-            userResponse.setName(user.getName());
-            userResponse.setEmail(user.getEmail());
-            userResponse.setNationalid(user.getNationalId());
-            userResponse.setPhonenumber(user.getPhoneNumber());
-            userResponse.setGovernorate(user.getGovernorate());
-            userResponse.setCity(user.getCity());
-            userResponse.setAddress(user.getAddress());
-            userResponses.add(userResponse);
+            if(user.getRole().name().equals("USER")) {
+                UserResponse userResponse = new UserResponse();
+                userResponse.setId(user.getId());
+                userResponse.setName(user.getName());
+                userResponse.setEmail(user.getEmail());
+                userResponse.setNationalid(user.getNationalId());
+                userResponse.setPhonenumber(user.getPhoneNumber());
+                userResponse.setGovernorate(user.getGovernorate());
+                userResponse.setCity(user.getCity());
+                userResponse.setAddress(user.getAddress());
+                userResponses.add(userResponse);
+            }
         }
         return userResponses;
     }

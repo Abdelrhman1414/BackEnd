@@ -1,7 +1,6 @@
 package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.AuthenticationRequest;
-import com.BackEnd.BidPro.Dto.Response.AuthenticationResponse;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Service.AuthenticationService;
 import com.BackEnd.BidPro.Dto.Request.RegisterRequest;
@@ -9,14 +8,13 @@ import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.core.AuthenticationException;import org.springframework.security.core.context.SecurityContextHolder;
-
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 import java.util.stream.Collectors;import org.springframework.context.support.DefaultMessageSourceResolvable;
 
