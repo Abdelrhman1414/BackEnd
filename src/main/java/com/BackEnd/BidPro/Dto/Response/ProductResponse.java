@@ -31,4 +31,5 @@ public class ProductResponse {
     private String sellerName;
     private String categoryName;
     private boolean isPending;
+    private Boolean UserBidOnThisProduct;
 }

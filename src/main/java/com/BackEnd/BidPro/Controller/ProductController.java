@@ -31,10 +31,22 @@ public class ProductController {
         userRepository = theUserRepository;
     }
 
+    // For Guests
     @GetMapping("/products")
     public ResponseEntity<?> findAll() {
         try {
             List<ProductResponse> productResponse = productService.findAll();
+            return new ResponseEntity<>(productResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //For Users
+    @GetMapping("/productsForUsers")
+    public ResponseEntity<?> findAllForUsres() {
+        try {
+            List<ProductResponse> productResponse = productService.findAllForUsers();
             return new ResponseEntity<>(productResponse, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -67,25 +79,23 @@ public class ProductController {
 
     // add Product with photo
     @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProduct(   @ModelAttribute ProductRequest productRequest) {
+    public ResponseEntity<?> addProduct(@ModelAttribute ProductRequest productRequest) {
         try {
             productService.addProduct(productRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     // Adding product WithOut BuyNow
-    @PostMapping(value="/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/product", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProductWithNoBuyNow(@ModelAttribute ProductRequest productRequest) {
         try {
             productRequest.setBuyNow(String.valueOf(0));
             productService.addProduct(productRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully WithOut buyNow");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -118,14 +128,16 @@ public class ProductController {
 
     // if the user paid the insurance?
     @GetMapping("/paidinsurance/{prouductId}")
-    public ResponseEntity<?> paidInsurance(@PathVariable long prouductId){
-        return new ResponseEntity<>(productService.paidInsurance(prouductId), HttpStatus.OK);    }
+    public ResponseEntity<?> paidInsurance(@PathVariable long prouductId) {
+        return new ResponseEntity<>(productService.paidInsurance(prouductId), HttpStatus.OK);
+    }
 
     // paying product with BuyNow
     @GetMapping("/buyNow/{prouductId}")
-    public ResponseEntity<?>buyingProductWithBuyNow(@PathVariable long prouductId) {
+    public ResponseEntity<?> buyingProductWithBuyNow(@PathVariable long prouductId) {
         return new ResponseEntity<>(productService.buyingWithBuyNow(prouductId), HttpStatus.OK);
     }
+
     //Find all Products That I Have Published
     @GetMapping("/myPosts")
     public ResponseEntity<?> findMyPosts() {
@@ -148,10 +160,11 @@ public class ProductController {
     public ResponseEntity<?> findRoom(@PathVariable long prouductId) {
         return new ResponseEntity<>(productService.findRoomWithID(prouductId), HttpStatus.OK);
     }
-// Note Not Working Right now
+
+    // Note Not Working Right now
     @PutMapping("/bid/{prouductId}")
-    public ResponseEntity<?> updateProductInRoom(@PathVariable long prouductId,@RequestBody ABC rr) {
-        RoomResponse dbRoomResponse =productService.updateRoom(rr,prouductId);
+    public ResponseEntity<?> updateProductInRoom(@PathVariable long prouductId, @RequestBody ABC rr) {
+        RoomResponse dbRoomResponse = productService.updateRoom(rr, prouductId);
         return new ResponseEntity<>(dbRoomResponse, HttpStatus.OK);
 
     }

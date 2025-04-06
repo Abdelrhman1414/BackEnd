@@ -52,6 +52,7 @@ public class Product {
     @JoinColumn(name = "seller_id")
     private User seller;
 
+    private long BuyerId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
@@ -88,6 +89,9 @@ public class Product {
             users = new ArrayList<>();
         }
         users.add(theUser);
-
     }
+
+
+
+
 }
