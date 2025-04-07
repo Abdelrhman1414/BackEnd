@@ -9,12 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/room")
 @RequiredArgsConstructor
 public class RoomController {
     private final RoomService roomService;
 
-    @PostMapping("/create")
+    @PostMapping("/admin/create")
     public ResponseEntity<?> createRoom(@RequestBody CreateRoomRequest roomRequest) {
         try {
             roomService.addRoom(roomRequest);
@@ -25,7 +24,7 @@ public class RoomController {
         }
     }
 
-    @GetMapping("/myrooms")
+    @GetMapping("/room/myrooms")
     public ResponseEntity<?> getMyRooms() {
         try{
             return ResponseEntity.status(HttpStatus.OK).body(roomService.getAllRooms());

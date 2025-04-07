@@ -36,7 +36,7 @@ public class RoomServiceImpl implements RoomService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
         users.add(user);
-        nameOfRoom.append(user.getName()+", group chat");
+        nameOfRoom.append("Admin, group chat");
         room.setName(nameOfRoom.toString());
         room.setUsers(users);
         room.setCreationDate(new Date());
@@ -48,7 +48,7 @@ public class RoomServiceImpl implements RoomService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
-        List<Room> rooms = user.getRooms();
+        List<Room> rooms = roomRepository.findRoomsByUser(user.getId());
         List<RoomResponse> roomResponses = new ArrayList<>();
         for(Room room : rooms) {
             RoomResponse roomResponse = new RoomResponse();
