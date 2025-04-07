@@ -1,7 +1,7 @@
 package com.BackEnd.BidPro.Controller;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
-import com.BackEnd.BidPro.Dto.Response.ABC;
+import com.BackEnd.BidPro.Dto.Response.NewHeghestPrice;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Dto.Response.RoomResponse;
 import com.BackEnd.BidPro.Model.Product;
@@ -145,7 +145,7 @@ public class ProductController {
         return new ResponseEntity<>(productService.findMyPosts(), HttpStatus.OK);
     }
 
-    //find Products that i have bid on it
+    //find Products that I have bid on it
     @GetMapping("/myBids")
     public ResponseEntity<?> findMyBids() {
         return new ResponseEntity<>(productService.findMyBids(), HttpStatus.OK);
@@ -163,10 +163,16 @@ public class ProductController {
 
     // Note Not Working Right now
     @PutMapping("/bid/{prouductId}")
-    public ResponseEntity<?> updateProductInRoom(@PathVariable long prouductId, @RequestBody ABC rr) {
-        RoomResponse dbRoomResponse = productService.updateRoom(rr, prouductId);
-        return new ResponseEntity<>(dbRoomResponse, HttpStatus.OK);
+    public ResponseEntity<?> updateProductInRoom(@RequestBody NewHeghestPrice newHeghestPrice,@PathVariable long prouductId) {
+        return new ResponseEntity<>(productService.updateRoom(productService.findById(prouductId), newHeghestPrice.getPrice()), HttpStatus.OK);
 
     }
+
+    @PostMapping("bidNow/{prouductId}")
+    public ResponseEntity<?> bidOnTheProudect(@RequestBody NewHeghestPrice newHeghestPrice, @PathVariable long prouductId) {
+
+        return new ResponseEntity<>(productService.addToRoom(productService.findById(prouductId), newHeghestPrice.getPrice()), HttpStatus.OK);
+    }
+
 
 }

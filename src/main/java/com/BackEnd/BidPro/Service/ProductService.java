@@ -1,7 +1,7 @@
 package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
-import com.BackEnd.BidPro.Dto.Response.ABC;
+import com.BackEnd.BidPro.Dto.Response.NewHeghestPrice;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Dto.Response.RoomResponse;
 import com.BackEnd.BidPro.Model.BidOnProduct;
@@ -54,9 +54,17 @@ public interface ProductService {
 
     BidOnProduct saveRoom(BidOnProduct bidOnProduct);
 
-    RoomResponse updateRoom(ABC rr, long theId);
+    ResponseEntity<?> updateRoom(Product product, float newPrice);
 
-//    List<BidOnProduct> f(long theId);
+    ResponseEntity<?> addToRoom(Product product,float newPrice);
+
+    Boolean IsInRoom(long theId);
+
+    BidOnProduct findInRoom(long productId);
+
+    void deleteRoom(BidOnProduct bidOnProduct);
+
+    Boolean ifThisUserPaidInsurance(long productId, long userId);
 
 
 

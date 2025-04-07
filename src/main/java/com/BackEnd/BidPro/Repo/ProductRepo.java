@@ -20,4 +20,6 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
             "p.processing = false")
     List<Product> findLiveProducts(@Param("currentDate") Date currentDate);
 
+
+
 }

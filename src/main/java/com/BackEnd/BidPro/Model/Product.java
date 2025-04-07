@@ -70,7 +70,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<Image> images;
 
-    @ManyToMany(fetch = FetchType.LAZY,
+    @ManyToMany(fetch = FetchType.EAGER,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinTable(

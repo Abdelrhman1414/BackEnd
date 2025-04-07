@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ABC {
+public class NewHeghestPrice {
     private float Price;
 
 }

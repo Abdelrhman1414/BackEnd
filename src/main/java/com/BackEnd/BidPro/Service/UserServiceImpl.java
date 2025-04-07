@@ -10,6 +10,7 @@ import com.BackEnd.BidPro.cloudinary.model.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
-
+    @Transactional
     @Override
     public List<ProductResponse> userAdvertisements() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
