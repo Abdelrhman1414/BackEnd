@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
 
-    @PostMapping("sendMessage")
+    @PostMapping("/sendMessage")
     public ResponseEntity<?> sendMessage(@RequestBody MessageRequest messageRequest) {
         try {
             chatMessageService.sendMessage(messageRequest);

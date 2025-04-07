@@ -14,6 +14,9 @@ import org.aspectj.bridge.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,12 +36,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public void sendMessage(MessageRequest messageRequest) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setMessage(messageRequest.getMessage());
-        chatMessage.setMessageDate(new Date());
+        ZonedDateTime now = ZonedDateTime.now();
+        chatMessage.setMessageDate(now);
         Room room = roomRepository.findById(messageRequest.getRoomId()).get();
         chatMessage.setRoom(room);
         User user = userRepository.findById(messageRequest.getUserId()).get();
         chatMessage.setSender(user);
-        for(int i=0;i<room.getUsers().size();i++){
+        for(int i=0;i<room.getUsers().size();i++) {
             String userId = String.valueOf(room.getUsers().get(i).getId());
             log.info("sending WS to {} with payload {} with current id : {}", userId, chatMessage.getMessage(),user.getId());
             template.convertAndSendToUser(
@@ -54,11 +58,26 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public List<MessagesResponse> roomMessages(Long roomId) {
         List<ChatMessage> Messages = chatMessageRepository.findSortedMessage(roomId);
         List<MessagesResponse> messageResponses = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         for(ChatMessage chatMessage : Messages){
+            ZonedDateTime time;
             MessagesResponse messageResponse = new MessagesResponse();
             messageResponse.setMessage(chatMessage.getMessage());
             messageResponse.setUserId(chatMessage.getSender().getId());
-            messageResponse.setDate(chatMessage.getMessageDate());
+            if(chatMessage.getSender().getRole().name().equals("ADMIN")){
+                messageResponse.setSenderName("Admin");
+            }
+            else {
+                messageResponse.setSenderName(chatMessage.getSender().getName());
+            }
+            if (chatMessage.getSender().getImage()!= null) {
+                messageResponse.setSenderPhoto(chatMessage.getSender().getImage().getUrl());
+            }
+            else {
+                messageResponse.setSenderPhoto(null);
+            }
+            time = chatMessage.getMessageDate().toInstant().atZone(ZoneId.of("Africa/Cairo"));
+            messageResponse.setDate(time.format(formatter));
             messageResponses.add(messageResponse);
         }
         return messageResponses;

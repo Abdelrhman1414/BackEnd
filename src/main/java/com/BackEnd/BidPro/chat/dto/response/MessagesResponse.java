@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -14,5 +15,7 @@ import java.util.Date;
 public class MessagesResponse {
     private String message;
     private Long userId;
-    private Date date;
+    private String date;
+    private String senderName;
+    private String senderPhoto;
 }

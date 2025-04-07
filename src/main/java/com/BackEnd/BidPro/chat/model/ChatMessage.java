@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Data
@@ -27,7 +28,7 @@ public class ChatMessage {
 
     @Column(name = "message_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date messageDate;
+    private ZonedDateTime messageDate;
 
     @ManyToOne(cascade=CascadeType.PERSIST)
     @JoinColumn(name = "sender_id")

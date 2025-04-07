@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Room {
 
     @Column(name = "creation_date")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date creationDate;
+    private ZonedDateTime creationDate;
 
     @Column
     private String name;
