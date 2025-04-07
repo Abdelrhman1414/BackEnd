@@ -57,4 +57,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
+
+    @Override
+    public void sendVerificationEmail(User user) {
+
+    }
+
 }

@@ -93,11 +93,11 @@ public class UserServiceImpl implements UserService {
             user.setGovernorate(request.getGovernorate());
         }
         if (request.getCity()!=null){
-            request.setCity(request.getCity());
+            user.setCity(request.getCity());
         }
 
         if (request.getAddress()!=null){
-            request.setAddress(request.getAddress());
+            user.setAddress(request.getAddress());
         }
 
         userRepository.save(user);
