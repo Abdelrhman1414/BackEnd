@@ -49,29 +49,31 @@ public class ProductServiceImpl implements ProductService {
         List<ProductResponse> productResponses1 = new ArrayList<>();
 
         for (Product product : products) {
-            ProductResponse productResponse = new ProductResponse();
-            productResponse.setID(String.valueOf(product.getId()));
-            productResponse.setDescription(product.getDescription());
-            productResponse.setTitle(product.getTitle());
-            productResponse.setQuantity(String.valueOf(product.getQuantity()));
-            productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
-            productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
-            productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            productResponse.setStartDate(formatter.format(product.getStartDate()));
-            productResponse.setEndDate(formatter.format(product.getEndDate()));
-            productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
+            if (product.getAvailable()) {
+                ProductResponse productResponse = new ProductResponse();
+                productResponse.setID(String.valueOf(product.getId()));
+                productResponse.setDescription(product.getDescription());
+                productResponse.setTitle(product.getTitle());
+                productResponse.setQuantity(String.valueOf(product.getQuantity()));
+                productResponse.setStartPrice(String.valueOf(product.getStartPrice()));
+                productResponse.setInsuranceAmount(String.valueOf(product.getInsuranceAmount()));
+                productResponse.setIncrementbid(String.valueOf(product.getIncrementbid()));
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                productResponse.setStartDate(formatter.format(product.getStartDate()));
+                productResponse.setEndDate(formatter.format(product.getEndDate()));
+                productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
 
-            productResponse.setCategoryName(product.getCategory().getName());
+                productResponse.setCategoryName(product.getCategory().getName());
 
 
-            productResponse.setSellerName(product.getSeller().getName());
-            List<String> urls = new ArrayList<>();
-            for (Image image : product.getImages()) {
-                urls.add(image.getUrl());
+                productResponse.setSellerName(product.getSeller().getName());
+                List<String> urls = new ArrayList<>();
+                for (Image image : product.getImages()) {
+                    urls.add(image.getUrl());
+                }
+                productResponse.setUrls(urls);
+                productResponses1.add(productResponse);
             }
-            productResponse.setUrls(urls);
-            productResponses1.add(productResponse);
         }
         return productResponses1;
     }
@@ -326,6 +328,7 @@ public class ProductServiceImpl implements ProductService {
         product.setIsPending(true);
         product.setProcessing(false);
         product.setHighestPrice(0);
+
         productRepo.save(product);
         Notification notification = new Notification();
         notification.setMessage(user.getName() + " your product " + productRequest.getTitle() + " added successfully!");
@@ -416,7 +419,7 @@ public class ProductServiceImpl implements ProductService {
                         product.addUser(user);
                         save(product);
                         //
-                        return ResponseEntity.ok().body("Added insurance table successfully :)");
+                        return ResponseEntity.ok().body("success");
                     } else
                         return ResponseEntity.ok().body("Your balance is not enough :(");
                 } else
@@ -479,6 +482,9 @@ public class ProductServiceImpl implements ProductService {
                             }
                             user.setBalance((long) (user.getBalance() - product.getBuyNow()));
                             seller.setBalance((long) (seller.getBalance() + product.getBuyNow() + product.getInsuranceAmount()));
+                            user.setBuying(user.getBuying() + 1);
+                            seller.setSelling(seller.getSelling() + 1);
+
                         }
 
                         product.setAvailable(false);
@@ -494,10 +500,19 @@ public class ProductServiceImpl implements ProductService {
                         if (product.getBuyNow() > 20000) {
                             seller.setBalance((long) (seller.getBalance() + product.getInsuranceAmount()));
                             product.setProcessing(true);
+                            user.setBuying(user.getBuying() + 1);
+                            seller.setSelling(seller.getSelling() + 1);
+                        }
+
+                        if (user.getBuying() % 5 == 0) {
+                            user.setBalance(user.getBalance() + 1000);
+                        }
+                        if (seller.getSelling() % 5 == 0) {
+                            seller.setBalance(seller.getBalance() + 1000);
                         }
                         productUsers.clear();
                         productRepo.save(product);
-                        return ResponseEntity.ok().body("You Have bought The Product Successfully:)");
+                        return ResponseEntity.ok().body("success");
                     } else
                         return ResponseEntity.ok().body("Your Balance Is Not Enough :(");
                 } else
@@ -508,12 +523,6 @@ public class ProductServiceImpl implements ProductService {
             return ResponseEntity.ok().body("The Product Isn't Available :(");
 
     }
-
-
-    void HandlingCasesInBuyNow() {
-
-    }
-
 
     // table Bids On Product
     // start biding
@@ -537,15 +546,18 @@ public class ProductServiceImpl implements ProductService {
                     bidOnProduct.setEndDate(product.getEndDate());
                     bidOnProduct.setHighestBid(newPrice);
                     bidOnProduct.setBidingDate(date);
+                    product.setHighestPrice(newPrice);
                     saveRoom(bidOnProduct);
 
-                    return ResponseEntity.ok().body("Added To The Room Successfully:)");
+                    return ResponseEntity.ok().body("success");
                 } else
                     return ResponseEntity.ok().body("You Have To Pay As StartPrice Or Higher :(");
             } else
                 return ResponseEntity.ok().body("You Have To Pay The Insurance First :(");
-        } else
-            return ResponseEntity.ok().body("Product Is Already In The Room :)");
+        } else {
+            ResponseEntity<?> responseEntity = updateRoom(product, newPrice);
+            return ResponseEntity.ok().body("Product Updated :)");
+        }
     }
 
 
@@ -557,32 +569,37 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<?> updateRoom(Product product, float newPrice) {
         BidOnProduct bidOnProduct = findInRoom(product.getId());
-        if (newPrice > bidOnProduct.getHighestBid()) {
-            if (newPrice >= product.getIncrementbid()) {
-                String email = SecurityContextHolder.getContext().getAuthentication().getName();
-                User user = userRepository.findByEmail(email)
-                        .orElseThrow(() -> new RuntimeException("Please provide a valid Email!"));
-                if (product.getBuyNow() < 20000) {
-                    User oldUser = bidOnProduct.getUserId();
-                    oldUser.setBalance(oldUser.getBalance() + (long) bidOnProduct.getHighestBid());
-                    userRepository.save(oldUser);
-                    user.setBalance(user.getBalance() - (long) newPrice);
-                    userRepository.save(user);
+        if (product.getAvailable()) {
+            if (newPrice > bidOnProduct.getHighestBid()) {
+                if (newPrice >= product.getIncrementbid()) {
+                    String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                    User user = userRepository.findByEmail(email)
+                            .orElseThrow(() -> new RuntimeException("Please provide a valid Email!"));
+                    if (product.getBuyNow() < 20000) {
+                        User oldUser = bidOnProduct.getUserId();
+                        oldUser.setBalance(oldUser.getBalance() + (long) bidOnProduct.getHighestBid());
+                        userRepository.save(oldUser);
+                        user.setBalance(user.getBalance() - (long) newPrice);
+                        userRepository.save(user);
+                    }
+                    roomRepo.delete(bidOnProduct);
+                    BidOnProduct newBid = new BidOnProduct();
+                    newBid.setUserId(user);
+                    newBid.setProductId(product);
+                    newBid.setStartDate(product.getStartDate());
+                    newBid.setEndDate(product.getEndDate());
+                    newBid.setHighestBid(newPrice);
+                    newBid.setBidingDate(new Date());
+                    product.setHighestPrice(newPrice);
+                    roomRepo.save(newBid);
+                    return ResponseEntity.ok().body("success");
+
                 }
-                roomRepo.delete(bidOnProduct);
-                BidOnProduct newBid = new BidOnProduct();
-                newBid.setUserId(user);
-                newBid.setProductId(product);
-                newBid.setStartDate(product.getStartDate());
-                newBid.setEndDate(product.getEndDate());
-                newBid.setHighestBid(newPrice);
-                newBid.setBidingDate(new Date());
-                roomRepo.save(newBid);
-                return ResponseEntity.ok().body("Room Updated Successfully :)");
+                return ResponseEntity.ok().body("You Have To Bid as Increment Bid Or Higher :(");
             }
-            return ResponseEntity.ok().body("You Have To Bid as Increment Bid Or Higher :(");
+            return ResponseEntity.ok().body("Add Higher Price :(");
         }
-        return ResponseEntity.ok().body("Add Higher Price :(");
+        return ResponseEntity.ok().body("Product Isn't Available");
     }
 
 
@@ -592,7 +609,6 @@ public class ProductServiceImpl implements ProductService {
         List<ProductBiderId> IDs = new ArrayList<>();
         Date date = null;
         for (BidOnProduct bidOnProduct : bidOnProducts) {
-
             IDs.add(bidOnProduct.getId());
             date = bidOnProduct.getBidingDate();
         }
@@ -605,11 +621,13 @@ public class ProductServiceImpl implements ProductService {
             roomResponse.setProductID(String.valueOf(productBiderId.getProductId()));
             roomResponse.setUserID(String.valueOf(productBiderId.getUserId()));
             Product product = findById(productBiderId.getProductId());
+
             roomResponse.setStartDate(String.valueOf(product.getStartDate()));
             roomResponse.setEndDate(String.valueOf(product.getEndDate()));
             roomResponse.setHighestPrice(product.getHighestPrice());
             roomResponse.setBiddingDate(String.valueOf(date));
-
+            Optional<User> user = userRepository.findById(productBiderId.getUserId());
+            roomResponse.setUserName(user.get().getName());
             roomResponses.add(roomResponse);
         }
         return roomResponses;
@@ -633,12 +651,14 @@ public class ProductServiceImpl implements ProductService {
         List<BidOnProduct> bidOnProducts = roomRepo.findAll();
         ProductBiderId IDs = new ProductBiderId();
         Date date = null;
+        float heighestPrice = 0;
 
         for (BidOnProduct bidOnProduct : bidOnProducts) {
             if (bidOnProduct.getProductId().getId().equals(theId)) {
                 IDs.setProductId(bidOnProduct.getProductId().getId());
                 IDs.setUserId(bidOnProduct.getId().getUserId());
                 date = bidOnProduct.getBidingDate();
+                heighestPrice = bidOnProduct.getHighestBid();
             }
         }
 
@@ -649,9 +669,10 @@ public class ProductServiceImpl implements ProductService {
         Product product = findById(theId);
         roomResponse.setStartDate(String.valueOf(product.getStartDate()));
         roomResponse.setEndDate(String.valueOf(product.getEndDate()));
-        roomResponse.setHighestPrice(product.getHighestPrice());
+        roomResponse.setHighestPrice(heighestPrice);
         roomResponse.setBiddingDate(String.valueOf(date));
-
+        Optional<User> user = userRepository.findById(IDs.getUserId());
+        roomResponse.setUserName(user.get().getName());
         return roomResponse;
     }
 

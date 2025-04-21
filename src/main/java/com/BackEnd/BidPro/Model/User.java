@@ -73,6 +73,10 @@ public class User implements UserDetails {
     )
     private List<Category> categoryList;
 
+    private long selling;
+
+    private long buying;
+
 //    @OneToMany(mappedBy = "userId")
 //    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
 

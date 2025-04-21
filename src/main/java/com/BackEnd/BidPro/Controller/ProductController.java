@@ -161,7 +161,6 @@ public class ProductController {
         return new ResponseEntity<>(productService.findRoomWithID(prouductId), HttpStatus.OK);
     }
 
-    // Note Not Working Right now
     @PutMapping("/bid/{prouductId}")
     public ResponseEntity<?> updateProductInRoom(@RequestBody NewHeghestPrice newHeghestPrice,@PathVariable long prouductId) {
         return new ResponseEntity<>(productService.updateRoom(productService.findById(prouductId), newHeghestPrice.getPrice()), HttpStatus.OK);

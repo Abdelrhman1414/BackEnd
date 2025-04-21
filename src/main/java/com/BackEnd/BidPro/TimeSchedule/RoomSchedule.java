@@ -28,9 +28,9 @@ public class RoomSchedule {
         this.userRepository = userRepository;
     }
 
-    //@Scheduled(cron = "0 0 * * * *") every Hour
-    //@Scheduled(cron = "0 0 0 * * *") every Day At 12 AM (00:00)
-    @Scheduled(cron = "*/5 * * * * *\n")
+    //@Scheduled(cron = "0 0 * * * *") //every Hour
+//    @Scheduled(cron = "0 0 0 * * *") //every Day At 12 AM (00:00)
+    @Scheduled(cron = "*/5 * * * * *\n")//every 5 sec
     public void checkForEndDate() {
         System.out.println("Checking for end date");
         Date date = new Date();
@@ -40,10 +40,11 @@ public class RoomSchedule {
                 if (productService.IsInRoom(product.getId())) {
                     BidOnProduct bidOnProduct = productService.findInRoom(product.getId());
                     User seller = product.getSeller();
+                    User winner = bidOnProduct.getUserId();
                     if (product.getBuyNow() < 20000) {
-                        User winner = bidOnProduct.getUserId();
-                        winner.setBalance((long) (winner.getBalance() - bidOnProduct.getHighestBid()));
                         seller.setBalance((long) (seller.getBalance() + bidOnProduct.getHighestBid() + product.getInsuranceAmount()));
+                        winner.setBuying(winner.getBuying() + 1);
+                        seller.setSelling(seller.getSelling() + 1);
                         userRepository.save(winner);
                         userRepository.save(seller);
                         product.setAvailable(false);
@@ -57,27 +58,41 @@ public class RoomSchedule {
                                 }
                             }
                         }
+                        productUsers.clear();
                         productService.deleteRoom(bidOnProduct);
                     } else {
                         seller.setBalance((long) (seller.getBalance() + product.getInsuranceAmount()));
-                        userRepository.save(seller);
+
                         product.setAvailable(false);
                         product.setProcessing(true);
+                        winner.setBuying(winner.getBuying() + 1);
+                        seller.setSelling(seller.getSelling() + 1);
+
+                        userRepository.save(winner);
+                        userRepository.save(seller);
+                        if (winner.getBuying() % 5 == 0) {
+                            winner.setBalance(winner.getBalance() + 1000);
+                        }
+                        if (seller.getSelling() % 5 == 0) {
+                            seller.setBalance(seller.getBalance() + 1000);
+                        }
+                        productRepo.save(product);
+
+                        List<User> productUsers = product.users;
+                        for (User productUser : productUsers) {
+                            System.out.println(productUser.getName());
+                            if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
+                                if (!productUser.getId().equals(winner.getId())) {
+                                    productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
+                                    userRepository.save(productUser);
+                                }
+                            }
+                        }
+                        productUsers.clear();
                     }
                     productRepo.save(product);
                 }
-                List<User> productUsers = product.users;
-                for (User productUser : productUsers) {
-                    System.out.println(productUser.getName());
-                    if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
-                        productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
-                        userRepository.save(productUser);
-
-                    }
-                }
-                productRepo.delete(product);
             }
         }
     }
-
 }

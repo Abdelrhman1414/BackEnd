@@ -16,4 +16,5 @@ public class RoomResponse {
     private String endDate;
     private String BiddingDate;
     private float highestPrice;
+    private String UserName;
 }
