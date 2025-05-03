@@ -4,15 +4,14 @@ import com.BackEnd.BidPro.Dto.Request.AuthenticationRequest;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Service.AuthenticationService;
 import com.BackEnd.BidPro.Dto.Request.RegisterRequest;
+import com.BackEnd.BidPro.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
@@ -28,6 +27,7 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
     private final UserRepository repository;
+    private final UserService userService;
 
 
 
@@ -65,6 +65,15 @@ public class AuthenticationController {
         }
 
 
+    }
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token){
+        boolean verified = userService.verifyEmail(token);
+        if (verified) {
+            return ResponseEntity.ok("Email verified successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired verification token.");
+        }
     }
 
     @PostMapping("/authenticate")

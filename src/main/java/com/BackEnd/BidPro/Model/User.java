@@ -51,6 +51,12 @@ public class User implements UserDetails {
     private String password;
 
 
+    private String verificationToken;
+
+    @ColumnDefault("false")
+    private boolean isEmailVerified;
+
+
     @Column(nullable = false)
     private String governorate;
     @Column(nullable = false)

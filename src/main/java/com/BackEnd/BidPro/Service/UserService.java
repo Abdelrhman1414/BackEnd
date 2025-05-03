@@ -12,6 +12,7 @@ public interface UserService {
     void deleteUser(Long id);
 
     UserResponse details();
+    boolean verifyEmail(String token);
     void         edit(UserRequest request);
     List<ProductResponse> userAdvertisements();
 

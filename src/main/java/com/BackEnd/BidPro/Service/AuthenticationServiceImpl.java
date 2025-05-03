@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.BackEnd.BidPro.Util.VerificationTokenUtil.generateToken;
+
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +25,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailSenderService emailSenderService;
+
 
     public AuthenticationResponse register(RegisterRequest request) {
+        String token = generateToken();
 
         var user = User.builder()
                 .name(request.getName())
@@ -35,10 +40,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .city(request.getCity())
                 .address(request.getAddress())
                 .balance(0L)
+                .verificationToken(token)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER).build();
 
         repository.save(user);
+        sendVerificationEmail(user);
+
 
         var jwtToken = jwtService.generateToken(user, user.getId(),user.getRole().name());
         return AuthenticationResponse.builder()
@@ -60,7 +68,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void sendVerificationEmail(User user) {
-
+        String verificationLink = "This your verification mail: \n You should Click This Link to be verified \n http://localhost:8080/api/v1/auth/verify-email?token=" + user.getVerificationToken();
+        emailSenderService.sendVerificationEmail(user.getEmail(), "Verification Email",verificationLink);
     }
 
 }

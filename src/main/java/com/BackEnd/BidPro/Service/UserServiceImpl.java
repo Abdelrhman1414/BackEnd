@@ -102,6 +102,24 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
+
+
+    @Override
+    public boolean verifyEmail(String token){
+        User user = userRepository.findByVerificationToken(token).orElseThrow(()->new RuntimeException("Please provide an valid email!"));
+        if (user != null && !user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            user.setVerificationToken(null);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+
     @Transactional
     @Override
     public List<ProductResponse> userAdvertisements() {
