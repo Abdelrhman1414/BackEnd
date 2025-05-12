@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
                 userResponse.setGovernorate(user.getGovernorate());
                 userResponse.setCity(user.getCity());
                 userResponse.setAddress(user.getAddress());
+                userResponse.setVerified(user.isVerified());
                 userResponses.add(userResponse);
             }
         }
@@ -68,6 +69,7 @@ public class UserServiceImpl implements UserService {
         userResponse.setGovernorate(user.getGovernorate());
         userResponse.setCity(user.getCity());
         userResponse.setAddress(user.getAddress());
+        userResponse.setVerified(user.isVerified());
 
 
         return userResponse;

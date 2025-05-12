@@ -18,5 +18,6 @@ public class UserResponse {
     private String governorate;
     private String city;
     private String address;
+    private boolean verified;
     private String image_url;
 }
