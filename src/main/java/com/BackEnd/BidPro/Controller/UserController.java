@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -55,8 +56,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());        }
     }
 
-    @PostMapping("/image")
-    public ResponseEntity<?> uploadingImage( ImageModel imageModel) {
+    @PostMapping(value="/image",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)    public ResponseEntity<?> uploadingImage(ImageModel imageModel) {
         try {
             return new ResponseEntity<>(imageService.uploadImage(imageModel),HttpStatus.OK);
         }
