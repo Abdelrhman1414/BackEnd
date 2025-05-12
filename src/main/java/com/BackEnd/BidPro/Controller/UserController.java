@@ -73,4 +73,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    @DeleteMapping("/deleteImage")
+    public ResponseEntity<?> deleteImage() {
+        try{
+            imageService.deleteImage();
+            return ResponseEntity.status(HttpStatus.OK).body("image deleted successfully");
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

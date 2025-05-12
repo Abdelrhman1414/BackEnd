@@ -1,7 +1,6 @@
 package com.BackEnd.BidPro.Service;
 
 import com.BackEnd.BidPro.Dto.Request.ProductRequest;
-import com.BackEnd.BidPro.Dto.Response.NewHeghestPrice;
 import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Dto.Response.RoomResponse;
 import com.BackEnd.BidPro.Model.*;
@@ -12,7 +11,7 @@ import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.cloudinary.model.Image;
 import com.BackEnd.BidPro.cloudinary.service.CloudinaryService;
 import com.BackEnd.BidPro.cloudinary.service.ImageService;
-import com.BackEnd.BidPro.notifications.NotificaionServicee;
+import com.BackEnd.BidPro.notifications.NotificaionService;
 import com.BackEnd.BidPro.notifications.Notification;
 import com.BackEnd.BidPro.notifications.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository userRepository;
     private final RoomRepo roomRepo;
     private final NotificationRepository notificationRepository;
-    private final NotificaionServicee notificationService;
+    private final NotificaionService notificationService;
 
 
     @Override

@@ -55,5 +55,17 @@ public class ImageServiceImpl implements ImageService {
             return null;
         }
     }
+
+    @Override
+    @Transactional
+    public void deleteImage() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+        Image image =  user.getImage();
+       imageRepository.deleteById(image.getId());
+       user.setImage(null);
+       userRepository.save(user);
+    }
 }
 
