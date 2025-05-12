@@ -83,6 +83,9 @@ public class User implements UserDetails {
 
     private long buying;
 
+    @ColumnDefault("false")
+    private boolean verified ;
+
 //    @OneToMany(mappedBy = "userId")
 //    private Set<BidOnProduct> bidOnProducts = new HashSet<>();
 

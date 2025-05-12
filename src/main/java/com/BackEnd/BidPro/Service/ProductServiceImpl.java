@@ -464,6 +464,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<?> buyingWithBuyNow(long theId) {
+        boolean flag = false;
         Product product = findById(theId);
         User seller = product.getSeller();
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -485,6 +486,13 @@ public class ProductServiceImpl implements ProductService {
                             user.setBuying(user.getBuying() + 1);
                             seller.setSelling(seller.getSelling() + 1);
 
+                            if (user.getBuying()>=5 &&!flag) {
+                                user.setVerified(true);
+                            }
+                            if (seller.getSelling()>=5 &&!flag) {
+                                seller.setVerified(true);
+                            }
+
                         }
 
                         product.setAvailable(false);
@@ -502,7 +510,17 @@ public class ProductServiceImpl implements ProductService {
                             product.setProcessing(true);
                             user.setBuying(user.getBuying() + 1);
                             seller.setSelling(seller.getSelling() + 1);
+
+                            if (user.getBuying()>=5 &&!flag) {
+                                user.setVerified(true);
+                            }
+                            if (seller.getSelling()>=5 &&!flag) {
+                                seller.setVerified(true);
+                            }
+
                         }
+
+
 
                         if (user.getBuying() % 5 == 0) {
                             user.setBalance(user.getBalance() + 1000);

@@ -33,6 +33,7 @@ public class RoomSchedule {
     @Scheduled(cron = "*/5 * * * * *\n")//every 5 sec
     public void checkForEndDate() {
         System.out.println("Checking for end date");
+        boolean flag =false;
         Date date = new Date();
         List<Product> products = productRepo.findLiveProducts(date);
         for (Product product : products) {
@@ -67,6 +68,14 @@ public class RoomSchedule {
                         product.setProcessing(true);
                         winner.setBuying(winner.getBuying() + 1);
                         seller.setSelling(seller.getSelling() + 1);
+
+
+                        if (winner.getBuying()>=5 &&!flag) {
+                            winner.setVerified(true);
+                        }
+                        if (seller.getSelling()>=5 &&!flag) {
+                            seller.setVerified(true);
+                        }
 
                         userRepository.save(winner);
                         userRepository.save(seller);
