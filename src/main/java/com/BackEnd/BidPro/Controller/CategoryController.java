@@ -38,12 +38,6 @@ public class CategoryController {
     }
 
 
-
-
-        //    throw new RuntimeException("Employee id not found - " + categoryId);
-
-
-
     @GetMapping("/categories/{categoryId}")
     public ResponseEntity<?> findById(@PathVariable long categoryId) {
         try {

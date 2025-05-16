@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,10 +44,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> findAll() {
-
         List<Product> products = productRepo.findAll();
         List<ProductResponse> productResponses1 = new ArrayList<>();
-
         for (Product product : products) {
             if (product.getAvailable()) {
                 ProductResponse productResponse = new ProductResponse();
@@ -61,11 +60,9 @@ public class ProductServiceImpl implements ProductService {
                 productResponse.setStartDate(formatter.format(product.getStartDate()));
                 productResponse.setEndDate(formatter.format(product.getEndDate()));
                 productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
-
                 productResponse.setCategoryName(product.getCategory().getName());
-
-
                 productResponse.setSellerName(product.getSeller().getName());
+                productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
                 List<String> urls = new ArrayList<>();
                 for (Image image : product.getImages()) {
                     urls.add(image.getUrl());
@@ -80,13 +77,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> findAllForUsers() {
         List<ProductResponse> productResponses = findAll();
-
         for (ProductResponse productResponse : productResponses) {
             if (paidInsurance(Long.parseLong(productResponse.getID()))) {
+                System.out.println("qdwq");
                 productResponse.setUserBidOnThisProduct(true);
             }
         }
-
         return productResponses;
     }
 
@@ -114,6 +110,7 @@ public class ProductServiceImpl implements ProductService {
 
 
                 productResponse.setSellerName(product.getSeller().getName());
+                productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
                 List<String> urls = new ArrayList<>();
                 for (Image image : product.getImages()) {
                     urls.add(image.getUrl());
@@ -183,23 +180,18 @@ public class ProductServiceImpl implements ProductService {
                 productResponse.setStartDate(formatter.format(product.getStartDate()));
                 productResponse.setEndDate(formatter.format(product.getEndDate()));
                 productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
-
                 productResponse.setCategoryName(product.getCategory().getName());
-
-
                 productResponse.setSellerName(product.getSeller().getName());
+                productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
                 List<String> urls = new ArrayList<>();
                 for (Image image : product.getImages()) {
                     urls.add(image.getUrl());
                 }
                 productResponse.setUrls(urls);
                 productResponse.setPending(product.getIsPending());
-
                 productResponses.add(productResponse);
-
             }
         }
-
         return productResponses;
     }
 
@@ -211,7 +203,6 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepo.findLiveProducts(date);
         List<ProductResponse> productResponses = new ArrayList<>();
         for (Product product : products) {
-
             ProductResponse productResponse = new ProductResponse();
             productResponse.setID(String.valueOf(product.getId()));
             productResponse.setDescription(product.getDescription());
@@ -224,11 +215,9 @@ public class ProductServiceImpl implements ProductService {
             productResponse.setStartDate(formatter.format(product.getStartDate()));
             productResponse.setEndDate(formatter.format(product.getEndDate()));
             productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
-
             productResponse.setCategoryName(product.getCategory().getName());
-
-
             productResponse.setSellerName(product.getSeller().getName());
+            productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
             List<String> urls = new ArrayList<>();
             for (Image image : product.getImages()) {
                 urls.add(image.getUrl());
@@ -236,10 +225,7 @@ public class ProductServiceImpl implements ProductService {
             productResponse.setUrls(urls);
             productResponse.setPending(product.getIsPending());
             productResponses.add(productResponse);
-
         }
-
-
         return productResponses;
     }
 
@@ -247,9 +233,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse findByIdResponse(long theId) {
         Optional<Product> result = productRepo.findById(theId);
-
         ProductResponse productResponse = new ProductResponse();
-
         Product product = null;
         if (result.isPresent()) {
             product = result.get();
@@ -267,18 +251,17 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setStartDate(formatter.format(product.getStartDate()));
         productResponse.setEndDate(formatter.format(product.getEndDate()));
         productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
-
         productResponse.setCategoryName(product.getCategory().getName());
         User user = userRepository.findById(product.getSeller().getId()).orElse(null);
-        productResponse.setSellerName(user.getName());
-
-        productResponse.setSellerName(user.getName());
+        if (user != null) {
+            productResponse.setSellerName(user.getName());
+            productResponse.setSellerId(String.valueOf(user.getId()));
+        }
         List<String> urls = new ArrayList<>();
         for (Image image : product.getImages()) {
             urls.add(image.getUrl());
         }
         productResponse.setUrls(urls);
-
         return productResponse;
     }
 
@@ -347,17 +330,12 @@ public class ProductServiceImpl implements ProductService {
         notificationService.sendNotification(String.valueOf(user.getId()), notification);
         notification.setUser(user);
         notificationRepository.save(notification);
-
-
     }
-
-
     @Override
     public void deleteById(Long theId) {
         productRepo.deleteById(theId);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<ProductResponse> findMyPosts() {
@@ -506,7 +484,6 @@ public class ProductServiceImpl implements ProductService {
                             }
 
                         }
-
                         product.setAvailable(false);
                         product.setBuyerId(user.getId());
                         // users paid insurance notifications
@@ -539,9 +516,6 @@ public class ProductServiceImpl implements ProductService {
                             }
 
                         }
-
-
-
                         if (user.getBuying() % 5 == 0) {
                             user.setBalance(user.getBalance() + 1000);
                         }
@@ -734,6 +708,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteRoom(BidOnProduct bidOnProduct) {
         roomRepo.delete(bidOnProduct);
     }

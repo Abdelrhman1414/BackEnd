@@ -75,7 +75,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         for (Product product : category.getProducts()) {
+            if (product.getAvailable() && !product.getIsPending()){
             ProductResponse productResponse = new ProductResponse();
+            productResponse.setID(String.valueOf(product.getId()));
             productResponse.setDescription(product.getDescription());
             productResponse.setTitle(product.getTitle());
             productResponse.setQuantity(String.valueOf(product.getQuantity()));
@@ -94,12 +96,13 @@ public class CategoryServiceImpl implements CategoryService {
                     .orElseThrow(() -> new RuntimeException("Please provide an valid Email!"));
             productResponse.setSellerName(user.getName());
             List<String> urls = new ArrayList<>();
-            for(Image image : product.getImages()){
+            for (Image image : product.getImages()) {
                 urls.add(image.getUrl());
             }
             productResponse.setUrls(urls);
 
             productResponseList.add(productResponse);
+        }
         }
         categoryResponse.setProducts(productResponseList);
         categoryResponse.setName(category.getName());

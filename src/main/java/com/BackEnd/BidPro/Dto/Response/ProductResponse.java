@@ -29,6 +29,7 @@ public class ProductResponse {
     private String startPrice;
     private List<String> urls;
     private String sellerName;
+    private String sellerId;
     private String categoryName;
     private boolean isPending;
     private Boolean UserBidOnThisProduct;

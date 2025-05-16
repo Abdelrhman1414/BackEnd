@@ -14,6 +14,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,7 @@ public class RoomSchedule {
     //@Scheduled(cron = "0 0 * * * *") //every Hour
 //    @Scheduled(cron = "0 0 0 * * *") //every Day At 12 AM (00:00)
     @Scheduled(cron = "*/5 * * * * *\n")//every 5 sec
+    @Transactional
     public void checkForEndDate() {
         System.out.println("Checking for end date");
         boolean flag =false;
@@ -82,7 +84,13 @@ public class RoomSchedule {
                             }
                         }
                         productUsers.clear();
-                        productService.deleteRoom(bidOnProduct);
+                        try {
+                            productService.deleteRoom(bidOnProduct);
+                            System.out.println("Successfully deleted room: " + bidOnProduct.getId());
+                        } catch (Exception e) {
+                            System.err.println("Failed to delete room: " + e.getMessage());
+                            e.printStackTrace();
+                        }
                     } else {
                         seller.setBalance((long) (seller.getBalance() + product.getInsuranceAmount()));
 
