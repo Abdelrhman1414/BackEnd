@@ -46,6 +46,7 @@ public class RoomSchedule {
         List<Product> products = productRepo.findLiveProducts(date);
         for (Product product : products) {
             if (product.getEndDate().getTime() <= date.getTime()) {
+                List<User> productUsers = product.users;
                 if (productService.IsInRoom(product.getId())) {
                     BidOnProduct bidOnProduct = productService.findInRoom(product.getId());
                     User seller = product.getSeller();
@@ -68,7 +69,7 @@ public class RoomSchedule {
 
 
                         Notification notification2 = new Notification();
-                        List<User> productUsers = product.users;
+
                         // notification for users paid insurance
                         for (User productUser : productUsers) {
                             if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
@@ -124,7 +125,7 @@ public class RoomSchedule {
                         }
                         productRepo.save(product);
 
-                        List<User> productUsers = product.users;
+
                         // notification for users paid insurance
                         Notification notification2 = new Notification();
                         for (User productUser : productUsers) {
@@ -144,7 +145,25 @@ public class RoomSchedule {
                         productUsers.clear();
                     }
                     productRepo.save(product);
+                }else {
+                    Notification notification2 = new Notification();
+                    for (User productUser : productUsers) {
+                        if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
+
+                                productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
+                                userRepository.save(productUser);
+
+                                notification2.setMessage(productUser.getName() + " the product " + product.getTitle() + " No one has Bided on it !");
+                                notificationService.sendNotification(String.valueOf(productUser.getId()), notification2);
+                                notification2.setUser(productUser);
+                                notificationRepository.save(notification2);
+
+                        }
+                    }
+                    productUsers.clear();
                 }
+
+
             }
         }
     }
