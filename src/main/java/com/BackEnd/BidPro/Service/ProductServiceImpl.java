@@ -129,23 +129,35 @@ public class ProductServiceImpl implements ProductService {
         return productResponses;
     }
 
+
+    // approved post by admin
     @Override
     public void approveProductById(Long id) {
         Optional<Product> product = productRepo.findById(id);
+        Notification notification = new Notification();
         if (product.isPresent() && !product.get().getAvailable() && product.get().getIsPending() && !product.get().getProcessing()) {
             product.get().setAvailable(true);
             product.get().setIsPending(false);
+            notification.setMessage(product.get().getSeller().getName() + " your product " + product.get().getTitle() + " has been approved successfully !");
+            notificationService.sendNotification(String.valueOf(product.get().getSeller().getId()), notification);
+            notification.setUser(product.get().getSeller());
+            notificationRepository.save(notification);
 
         } else {
             throw new RuntimeException("Did not find product id - " + id);
         }
 
     }
-
+    // declined  post by admin
     @Override
     public void declineProductById(Long id) {
         Optional<Product> product = productRepo.findById(id);
+        Notification notification = new Notification();
         if (product.isPresent() && !product.get().getAvailable() && product.get().getIsPending() && !product.get().getProcessing()) {
+            notification.setMessage(product.get().getSeller().getName() + " your product " + product.get().getTitle() + "  has been declined as it does not comply with our terms and conditions !");
+            notificationService.sendNotification(String.valueOf(product.get().getSeller().getId()), notification);
+            notification.setUser(product.get().getSeller());
+            notificationRepository.save(notification);
             productRepo.delete(product.get());
         } else {
             throw new RuntimeException("Did not find product id - " + id);
@@ -329,8 +341,9 @@ public class ProductServiceImpl implements ProductService {
         product.setHighestPrice(0);
 
         productRepo.save(product);
+
         Notification notification = new Notification();
-        notification.setMessage(user.getName() + " your product " + productRequest.getTitle() + " added successfully!");
+        notification.setMessage(user.getName() + " your product " + productRequest.getTitle() + " ًis pending admin approval !");
         notificationService.sendNotification(String.valueOf(user.getId()), notification);
         notification.setUser(user);
         notificationRepository.save(notification);
@@ -496,11 +509,19 @@ public class ProductServiceImpl implements ProductService {
 
                         product.setAvailable(false);
                         product.setBuyerId(user.getId());
+                        // users paid insurance notifications
+                        Notification notification = new Notification();
+
                         List<User> productUsers = product.users;
                         for (User productUser : productUsers) {
                             if (ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
                                 if (!productUser.getId().equals(user.getId())) {
                                     productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
+
+                                    notification.setMessage(productUser.getName() + " the product " + product.getTitle() + " has been sold to another customer !");
+                                    notificationService.sendNotification(String.valueOf(productUser.getId()), notification);
+                                    notification.setUser(productUser);
+                                    notificationRepository.save(notification);
                                 }
                             }
                         }
@@ -592,12 +613,20 @@ public class ProductServiceImpl implements ProductService {
                     String email = SecurityContextHolder.getContext().getAuthentication().getName();
                     User user = userRepository.findByEmail(email)
                             .orElseThrow(() -> new RuntimeException("Please provide a valid Email!"));
+                    //notification .
                     if (product.getBuyNow() < 20000) {
+                        Notification notification = new Notification();
+
                         User oldUser = bidOnProduct.getUserId();
                         oldUser.setBalance(oldUser.getBalance() + (long) bidOnProduct.getHighestBid());
                         userRepository.save(oldUser);
                         user.setBalance(user.getBalance() - (long) newPrice);
                         userRepository.save(user);
+
+                        notification.setMessage(oldUser.getName() + ", another customer placed a higher bid on the " +  product.getTitle() + "  you bid for. !");
+                        notificationService.sendNotification(String.valueOf(oldUser.getId()), notification);
+                        notification.setUser(oldUser);
+                        notificationRepository.save(notification);
                     }
                     roomRepo.delete(bidOnProduct);
                     BidOnProduct newBid = new BidOnProduct();

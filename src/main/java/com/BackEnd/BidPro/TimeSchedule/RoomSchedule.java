@@ -7,6 +7,9 @@ import com.BackEnd.BidPro.Repo.ProductRepo;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Service.ProductService;
 
+import com.BackEnd.BidPro.notifications.NotificaionService;
+import com.BackEnd.BidPro.notifications.Notification;
+import com.BackEnd.BidPro.notifications.NotificationRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,12 +23,15 @@ public class RoomSchedule {
     private final UserRepository userRepository;
     ProductService productService;
     ProductRepo productRepo;
-
+    NotificaionService notificationService;
+    NotificationRepository notificationRepository;
     @Autowired
-    public RoomSchedule(ProductService productService, ProductRepo productRepo, UserRepository userRepository) {
+    public RoomSchedule(ProductService productService, ProductRepo productRepo, UserRepository userRepository , NotificaionService notificationService, NotificationRepository notificationRepository) {
         this.productService = productService;
         this.productRepo = productRepo;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
     }
 
     //@Scheduled(cron = "0 0 * * * *") //every Hour
@@ -44,18 +50,34 @@ public class RoomSchedule {
                     User winner = bidOnProduct.getUserId();
                     if (product.getBuyNow() < 20000) {
                         seller.setBalance((long) (seller.getBalance() + bidOnProduct.getHighestBid() + product.getInsuranceAmount()));
+                        // notification for user won < 20000
                         winner.setBuying(winner.getBuying() + 1);
                         seller.setSelling(seller.getSelling() + 1);
                         userRepository.save(winner);
                         userRepository.save(seller);
                         product.setAvailable(false);
                         product.setBuyerId(winner.getId());
+
+                        Notification notification = new Notification();
+                        notification.setMessage("Congratulations, " + winner.getName() + " You’ve won the bid for the product " +  product.getTitle() + ", The product will be shipped to you within 7 days ");
+                        notificationService.sendNotification(String.valueOf(winner.getId()), notification);
+                        notification.setUser(winner);
+                        notificationRepository.save(notification);
+
+
+                        Notification notification2 = new Notification();
                         List<User> productUsers = product.users;
+                        // notification for users paid insurance
                         for (User productUser : productUsers) {
                             if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
                                 if (!productUser.getId().equals(winner.getId())) {
                                     productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
                                     userRepository.save(productUser);
+
+                                    notification2.setMessage(productUser.getName() + " the product " + product.getTitle() + " has been ended , another customer won it !");
+                                    notificationService.sendNotification(String.valueOf(productUser.getId()), notification2);
+                                    notification2.setUser(productUser);
+                                    notificationRepository.save(notification2);
                                 }
                             }
                         }
@@ -66,6 +88,13 @@ public class RoomSchedule {
 
                         product.setAvailable(false);
                         product.setProcessing(true);
+                        Notification notification = new Notification();
+                        notification.setMessage("Congratulations, " + winner.getName() + " You’ve won the bid for the product " +  product.getTitle() + ",  member of our team will contact you and the seller to complete the remaining process ");
+                        notificationService.sendNotification(String.valueOf(winner.getId()), notification);
+                        notification.setUser(winner);
+                        notificationRepository.save(notification);
+
+                        // winner waits admin approve
                         winner.setBuying(winner.getBuying() + 1);
                         seller.setSelling(seller.getSelling() + 1);
 
@@ -88,12 +117,19 @@ public class RoomSchedule {
                         productRepo.save(product);
 
                         List<User> productUsers = product.users;
+                        // notification for users paid insurance
+                        Notification notification2 = new Notification();
                         for (User productUser : productUsers) {
                             System.out.println(productUser.getName());
                             if (productService.ifThisUserPaidInsurance(product.getId(), productUser.getId())) {
                                 if (!productUser.getId().equals(winner.getId())) {
                                     productUser.setBalance(productUser.getBalance() + (long) product.getInsuranceAmount());
                                     userRepository.save(productUser);
+
+                                    notification2.setMessage(productUser.getName() + " the product " + product.getTitle() + " has been ended , another customer won it !");
+                                    notificationService.sendNotification(String.valueOf(productUser.getId()), notification2);
+                                    notification2.setUser(productUser);
+                                    notificationRepository.save(notification2);
                                 }
                             }
                         }
