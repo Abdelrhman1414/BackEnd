@@ -3,7 +3,9 @@ package com.BackEnd.BidPro.Service;
 import com.BackEnd.BidPro.Config.JwtService;
 import com.BackEnd.BidPro.Domain.Role;
 import com.BackEnd.BidPro.Dto.Response.AuthenticationResponse;
+import com.BackEnd.BidPro.Model.Category;
 import com.BackEnd.BidPro.Model.User;
+import com.BackEnd.BidPro.Repo.CategoryRepo;
 import com.BackEnd.BidPro.Repo.UserRepository;
 import com.BackEnd.BidPro.Dto.Request.AuthenticationRequest;
 import com.BackEnd.BidPro.Dto.Request.RegisterRequest;
@@ -13,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.BackEnd.BidPro.Util.VerificationTokenUtil.generateToken;
 
@@ -26,11 +31,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailSenderService emailSenderService;
+    private final CategoryRepo categoryRepository;
 
 
     public AuthenticationResponse register(RegisterRequest request) {
         String token = generateToken();
-
+        List<Category> categories = new ArrayList<>();
+        for(Long id : request.getInterests()) {
+            categories.add(categoryRepository.findById(id).get());
+        }
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -41,6 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .address(request.getAddress())
                 .balance(0L)
                 .verificationToken(token)
+                .categoryList(categories)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER).build();
 

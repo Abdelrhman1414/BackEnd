@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -39,6 +41,8 @@ public class RegisterRequest {
     private String city;
     @NotBlank(message = "address is required")
     private String address;
+
+    private List<Long> Interests;
 
     public boolean isPasswordMatching() {
         return password != null && password.equals(confirmpassword);
