@@ -67,5 +67,13 @@ public class ImageServiceImpl implements ImageService {
        user.setImage(null);
        userRepository.save(user);
     }
+
+    @Override
+    public String getImageUrl(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Please provide an valid userName!"));
+        return user.getImage().getUrl();
+    }
 }
 

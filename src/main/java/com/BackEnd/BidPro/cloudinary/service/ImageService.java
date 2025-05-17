@@ -10,5 +10,5 @@ public interface ImageService {
 
     ResponseEntity<?> uploadImage(ImageModel imageModel);
     void deleteImage();
-
+    String getImageUrl();
 }

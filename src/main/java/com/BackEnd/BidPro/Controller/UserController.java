@@ -83,4 +83,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @GetMapping("/image")
+    public ResponseEntity<?> getImage() {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(imageService.getImageUrl());
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
