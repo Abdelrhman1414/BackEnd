@@ -131,6 +131,7 @@ public class UserServiceImpl implements UserService {
         List<Product> products = user.getSellerProducts();
         List<ProductResponse> productResponses = new ArrayList<>();
         for (Product product : products) {
+            if(product.getAvailable()){
             ProductResponse productResponse = new ProductResponse();
             productResponse.setDescription(product.getDescription());
             productResponse.setTitle(product.getTitle());
@@ -154,6 +155,7 @@ public class UserServiceImpl implements UserService {
             }
             productResponse.setUrls(urls);
             productResponses.add(productResponse);
+        }
         }
         return productResponses;
     }

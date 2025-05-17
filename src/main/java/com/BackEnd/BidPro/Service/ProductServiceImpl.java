@@ -16,6 +16,7 @@ import com.BackEnd.BidPro.notifications.Notification;
 import com.BackEnd.BidPro.notifications.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,8 @@ public class ProductServiceImpl implements ProductService {
     private final RoomRepo roomRepo;
     private final NotificationRepository notificationRepository;
     private final NotificaionService notificationService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
 
 
     @Override
@@ -63,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
                 productResponse.setCategoryName(product.getCategory().getName());
                 productResponse.setSellerName(product.getSeller().getName());
                 productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
+                productResponse.setBuyerID(String.valueOf(product.getBuyerId()));
                 List<String> urls = new ArrayList<>();
                 for (Image image : product.getImages()) {
                     urls.add(image.getUrl());
@@ -105,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
                 productResponse.setStartDate(formatter.format(product.getStartDate()));
                 productResponse.setEndDate(formatter.format(product.getEndDate()));
                 productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
-
+                productResponse.setBuyerID(String.valueOf(product.getBuyerId()));
                 productResponse.setCategoryName(product.getCategory().getName());
 
 
@@ -183,6 +187,7 @@ public class ProductServiceImpl implements ProductService {
                 productResponse.setCategoryName(product.getCategory().getName());
                 productResponse.setSellerName(product.getSeller().getName());
                 productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
+                productResponse.setBuyerID(String.valueOf(product.getBuyerId()));
                 List<String> urls = new ArrayList<>();
                 for (Image image : product.getImages()) {
                     urls.add(image.getUrl());
@@ -218,6 +223,7 @@ public class ProductServiceImpl implements ProductService {
             productResponse.setCategoryName(product.getCategory().getName());
             productResponse.setSellerName(product.getSeller().getName());
             productResponse.setSellerId(String.valueOf(product.getSeller().getId()));
+            productResponse.setBuyerID(String.valueOf(product.getBuyerId()));
             List<String> urls = new ArrayList<>();
             for (Image image : product.getImages()) {
                 urls.add(image.getUrl());
@@ -252,6 +258,7 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setEndDate(formatter.format(product.getEndDate()));
         productResponse.setBuyNow(String.valueOf(product.getBuyNow()));
         productResponse.setCategoryName(product.getCategory().getName());
+        productResponse.setBuyerID(String.valueOf(product.getBuyerId()));
         User user = userRepository.findById(product.getSeller().getId()).orElse(null);
         if (user != null) {
             productResponse.setSellerName(user.getName());
@@ -577,7 +584,6 @@ public class ProductServiceImpl implements ProductService {
     public BidOnProduct saveRoom(BidOnProduct bidOnProduct) {
         return roomRepo.save(bidOnProduct);
     }
-
     @Override
     public ResponseEntity<?> updateRoom(Product product, float newPrice) {
         BidOnProduct bidOnProduct = findInRoom(product.getId());
@@ -621,6 +627,63 @@ public class ProductServiceImpl implements ProductService {
         }
         return ResponseEntity.ok().body("Product Isn't Available");
     }
+
+//    @Override
+//    @Transactional
+//    public ResponseEntity<?> updateRoom(Product product, float newPrice) {
+//        BidOnProduct bidOnProduct = findInRoom(product.getId());
+//        if (product.getAvailable()) {
+//            if (newPrice > bidOnProduct.getHighestBid()) {
+//                if (newPrice >= product.getIncrementbid()) {
+//                    String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//                    User user = userRepository.findByEmail(email)
+//                            .orElseThrow(() -> new RuntimeException("Please provide a valid Email!"));
+//
+//                    // Handle notifications and balance updates
+//                    if (product.getBuyNow() < 20000) {
+//                        Notification notification = new Notification();
+//                        User oldUser = bidOnProduct.getUserId();
+//                        oldUser.setBalance(oldUser.getBalance() + (long) bidOnProduct.getHighestBid());
+//                        userRepository.save(oldUser);
+//                        user.setBalance(user.getBalance() - (long) newPrice);
+//                        userRepository.save(user);
+//
+//                        notification.setMessage(oldUser.getName() + ", another customer placed a higher bid on the " +  product.getTitle() + "  you bid for. !");
+//                        notificationService.sendNotification(String.valueOf(oldUser.getId()), notification);
+//                        notification.setUser(oldUser);
+//                        notificationRepository.save(notification);
+//                    }
+//
+//                    // Delete old bid and create new one
+//                    roomRepo.delete(bidOnProduct);
+//                    BidOnProduct newBid = new BidOnProduct();
+//                    newBid.setUserId(user);
+//                    newBid.setProductId(product);
+//                    newBid.setStartDate(product.getStartDate());
+//                    newBid.setEndDate(product.getEndDate());
+//                    newBid.setHighestBid(newPrice);
+//                    newBid.setBidingDate(new Date());
+//                    product.setHighestPrice(newPrice);
+//                    roomRepo.save(newBid);
+//
+//                    // Send WebSocket update
+//                    Map<String, Object> updateMessage = new HashMap<>();
+//                    updateMessage.put("type", "bidUpdate");
+//                    updateMessage.put("productId", product.getId());
+//                    updateMessage.put("newPrice", newPrice);
+//                    updateMessage.put("newBidder", user.getName());
+//                    updateMessage.put("timestamp", new Date());
+//
+//                    simpMessagingTemplate.convertAndSend("/topic/product/" + product.getId(), updateMessage);
+//
+//                    return ResponseEntity.ok().body("success");
+//                }
+//                return ResponseEntity.ok().body("You Have To Bid as Increment Bid Or Higher :(");
+//            }
+//            return ResponseEntity.ok().body("Add Higher Price :(");
+//        }
+//        return ResponseEntity.ok().body("Product Isn't Available");
+//    }
 
 
     @Override
