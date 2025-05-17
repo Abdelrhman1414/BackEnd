@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificaionService {
     private final SimpMessagingTemplate template;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public void sendNotification(String userId, Notification notification) {
@@ -43,5 +45,11 @@ public class NotificationServiceImpl implements NotificaionService {
             responses.add(notificationResponse);
         }
         return responses;
+    }
+
+    @Transactional
+    @Override
+    public void deleteNotification(Long id) {
+        notificationRepository.deleteById(id);
     }
 }

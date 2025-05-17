@@ -6,5 +6,6 @@ import java.util.List;
 public interface NotificaionService {
     void sendNotification(String userId,Notification notification);
     List<NotificationResponse> userNotifications();
+    void deleteNotification(Long id);
 
 }
