@@ -20,4 +20,5 @@ public class UserResponse {
     private String address;
     private boolean verified;
     private String image_url;
+    private Long balance;
 }
