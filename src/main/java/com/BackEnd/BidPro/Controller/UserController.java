@@ -84,7 +84,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/image")
+    @GetMapping("/myimage")
     public ResponseEntity<?> getImage() {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(imageService.getImageUrl());
