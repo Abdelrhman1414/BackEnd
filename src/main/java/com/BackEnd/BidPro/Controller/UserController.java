@@ -34,7 +34,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-    @PostMapping("/edit")
+
+    @PutMapping("/edit")
     public ResponseEntity<?> edit(@Valid @RequestBody UserRequest request, BindingResult bindingResult) {
         try {
             List<String> errors = bindingResult.getAllErrors()

@@ -37,9 +37,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse register(RegisterRequest request) {
         String token = generateToken();
         List<Category> categories = new ArrayList<>();
-        for(Long id : request.getInterests()) {
-            categories.add(categoryRepository.findById(id).get());
+
+        if(!(request.getInterests()==null)){
+            for(Long id : request.getInterests()) {
+                categories.add(categoryRepository.findById(id).get());
+            }
         }
+
         var user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
