@@ -67,15 +67,15 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/products")
-    public Product addProduct(@RequestBody Product theProduct) {
-
-        theProduct.setId(0L);
-
-        Product dbProduct = productService.save(theProduct);
-
-        return dbProduct;
-    }
+//    @PostMapping("/products")
+//    public Product addProduct(@RequestBody Product theProduct) {
+//
+//        theProduct.setId(0L);
+//
+//        Product dbProduct = productService.save(theProduct);
+//
+//        return dbProduct;
+//    }
 
     // add Product with photo
     @PostMapping(value = "/addProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -100,13 +100,13 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/products")
-    public Product updateProduct(@RequestBody Product theProduct) {
-
-        Product dbProduct = productService.save(theProduct);
-
-        return dbProduct;
-    }
+//    @PutMapping("/products")
+//    public Product updateProduct(@RequestBody Product theProduct) {
+//
+//        Product dbProduct = productService.save(theProduct);
+//
+//        return dbProduct;
+//    }
 
 
 //    @DeleteMapping("/products/{prouductId}")
