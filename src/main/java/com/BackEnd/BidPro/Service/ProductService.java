@@ -6,6 +6,7 @@ import com.BackEnd.BidPro.Dto.Response.ProductResponse;
 import com.BackEnd.BidPro.Dto.Response.RoomResponse;
 import com.BackEnd.BidPro.Model.BidOnProduct;
 import com.BackEnd.BidPro.Model.Product;
+import com.BackEnd.BidPro.Model.User;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public interface ProductService {
 
     Boolean ifThisUserPaidInsurance(long productId, long userId);
 
-
+    void sendbid(List<String> list);
 
 
 

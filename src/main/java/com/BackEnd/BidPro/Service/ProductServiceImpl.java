@@ -15,6 +15,7 @@ import com.BackEnd.BidPro.notifications.NotificaionService;
 import com.BackEnd.BidPro.notifications.Notification;
 import com.BackEnd.BidPro.notifications.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +32,7 @@ import java.text.SimpleDateFormat;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
@@ -41,7 +43,8 @@ public class ProductServiceImpl implements ProductService {
     private final RoomRepo roomRepo;
     private final NotificationRepository notificationRepository;
     private final NotificaionService notificationService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate template;
+
 
 
 
@@ -374,11 +377,13 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepo.findAll();
 
         for (Product product : products) {
-            for (User user1 : product.users) {
-                if (user1.getId().equals(userId)) {
-                    productResponses.add(findByIdResponse(product.getId()));
+
+                for (User user1 : product.users) {
+                    if (user1.getId().equals(userId)) {
+                        productResponses.add(findByIdResponse(product.getId()));
+                    }
                 }
-            }
+
         }
         return productResponses;
     }
@@ -550,7 +555,7 @@ public class ProductServiceImpl implements ProductService {
         Date date = new Date();
         if (!IsInRoom(product.getId())) {
             if (paidInsurance(product.getId())) {
-                if (newPrice >= product.getStartPrice()) {
+                if (newPrice >= (product.getStartPrice()+ product.getIncrementbid()) ) {
                     BidOnProduct bidOnProduct = new BidOnProduct();
                     String email = SecurityContextHolder.getContext().getAuthentication().getName();
                     User user = userRepository.findByEmail(email)
@@ -575,7 +580,7 @@ public class ProductServiceImpl implements ProductService {
                 return ResponseEntity.ok().body("You Have To Pay The Insurance First :(");
         } else {
             ResponseEntity<?> responseEntity = updateRoom(product, newPrice);
-            return ResponseEntity.ok().body("Product Updated :)");
+            return ResponseEntity.ok().body(responseEntity.getBody()+"");
         }
     }
 
@@ -589,7 +594,7 @@ public class ProductServiceImpl implements ProductService {
         BidOnProduct bidOnProduct = findInRoom(product.getId());
         if (product.getAvailable()) {
             if (newPrice > bidOnProduct.getHighestBid()) {
-                if (newPrice >= product.getIncrementbid()) {
+                if (newPrice >= (bidOnProduct.getHighestBid()+product.getIncrementbid()) ) {
                     String email = SecurityContextHolder.getContext().getAuthentication().getName();
                     User user = userRepository.findByEmail(email)
                             .orElseThrow(() -> new RuntimeException("Please provide a valid Email!"));
@@ -616,7 +621,14 @@ public class ProductServiceImpl implements ProductService {
                     newBid.setEndDate(product.getEndDate());
                     newBid.setHighestBid(newPrice);
                     newBid.setBidingDate(new Date());
+                     List<String> arr =new ArrayList<>();
+
+                     arr.add(String.valueOf(newPrice));
+                     arr.add(user.getName());
+                     arr.add(String.valueOf(user.getImage()));
+
                     product.setHighestPrice(newPrice);
+                    sendbid(arr);
                     roomRepo.save(newBid);
                     return ResponseEntity.ok().body("success");
 
@@ -774,6 +786,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteRoom(BidOnProduct bidOnProduct) {
         roomRepo.delete(bidOnProduct);
+    }
+
+    public void sendbid( List<String> list) {
+        log.info("sending bidonproduct object {} ", list);
+        template.convertAndSend(
+                "/product",
+                list
+        );
     }
 
 }
