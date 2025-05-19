@@ -625,7 +625,7 @@ public class ProductServiceImpl implements ProductService {
 
                      arr.add(String.valueOf(newPrice));
                      arr.add(user.getName());
-                     arr.add(String.valueOf(user.getImage()));
+                     arr.add(user.getImage().getUrl());
 
                     product.setHighestPrice(newPrice);
                     sendbid(arr);
