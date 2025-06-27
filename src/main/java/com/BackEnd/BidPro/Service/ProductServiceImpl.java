@@ -34,7 +34,6 @@ import java.text.SimpleDateFormat;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductServiceImpl implements ProductService {
-
     private final ProductRepo productRepo;
     private final ImageService imageService;
     private final CloudinaryService cloudinaryService;
@@ -44,9 +43,6 @@ public class ProductServiceImpl implements ProductService {
     private final NotificationRepository notificationRepository;
     private final NotificaionService notificationService;
     private final SimpMessagingTemplate template;
-
-
-
 
     @Override
     public List<ProductResponse> findAll() {
@@ -124,16 +120,11 @@ public class ProductServiceImpl implements ProductService {
                 }
                 productResponse.setUrls(urls);
                 productResponse.setPending(product.getIsPending());
-
                 productResponses.add(productResponse);
-
             }
         }
-
         return productResponses;
     }
-
-
     // approved post by admin
     @Override
     public void approveProductById(Long id) {
@@ -166,9 +157,7 @@ public class ProductServiceImpl implements ProductService {
         } else {
             throw new RuntimeException("Did not find product id - " + id);
         }
-
     }
-
     @Override
     public List<ProductResponse> getAllProcessingProducts() {
         List<Product> products = productRepo.findAll();
@@ -768,6 +757,7 @@ public class ProductServiceImpl implements ProductService {
         roomResponse.setBiddingDate(String.valueOf(date));
         Optional<User> user = userRepository.findById(IDs.getUserId());
         roomResponse.setUserName(user.get().getName());
+        roomResponse.setImage_url(String.valueOf(user.get().getImage()));
         return roomResponse;
     }
 
@@ -795,5 +785,4 @@ public class ProductServiceImpl implements ProductService {
                 list
         );
     }
-
 }

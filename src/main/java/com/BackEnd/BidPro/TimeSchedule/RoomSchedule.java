@@ -94,9 +94,10 @@ public class RoomSchedule {
                         }
                     } else {
                         seller.setBalance((long) (seller.getBalance() + product.getInsuranceAmount()));
-
                         product.setAvailable(false);
                         product.setProcessing(true);
+                        product.setBuyerId(winner.getId());
+                        System.out.println("a7aaaaaaaaaaaaaaa");
                         Notification notification = new Notification();
                         notification.setMessage("Congratulations, " + winner.getName() + " You’ve won the bid for the product " +  product.getTitle() + ",  member of our team will contact you and the seller to complete the remaining process ");
                         notificationService.sendNotification(String.valueOf(winner.getId()), notification);
@@ -106,15 +107,12 @@ public class RoomSchedule {
                         // winner waits admin approve
                         winner.setBuying(winner.getBuying() + 1);
                         seller.setSelling(seller.getSelling() + 1);
-
-
                         if (winner.getBuying()>=5 &&!flag) {
                             winner.setVerified(true);
                         }
                         if (seller.getSelling()>=5 &&!flag) {
                             seller.setVerified(true);
                         }
-
                         userRepository.save(winner);
                         userRepository.save(seller);
                         if (winner.getBuying() % 5 == 0) {
